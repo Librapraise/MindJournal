@@ -6,7 +6,7 @@ from fastapi.responses import RedirectResponse
 import logging
 
 from app.core.config import settings
-from app.routers import users, journal
+from app.routers import users, journal, chat
 from app.database import engine, Base
 
 # Configure logging
@@ -47,6 +47,7 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 # Include routers
 app.include_router(users.router)
 app.include_router(journal.router)
+app.include_router(chat.router)
 
 @app.get("/")
 async def root():

@@ -3,10 +3,10 @@ import json
 import random # Added import
 import uuid # Added import
 from enum import Enum
-from typing import Optional # Added for return type hint
+from typing import Optional, List # Added for return type hint
 
 from app.core.config import settings
-from app.schemas import AIAnalysisResult
+from app.schemas import AIAnalysisResult, JournalEntry 
 from app import crud # Added import
 from sqlalchemy.orm import Session # Added import
 
@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session # Added import
 from langchain_google_genai import ChatGoogleGenerativeAI # Updated import path
 from langchain.prompts import ChatPromptTemplate
 from langchain.output_parsers import PydanticOutputParser
+from langchain.schema.output_parser import StrOutputParser
 # Removed LLMChain as we'll use LCEL pipe syntax
 # from langchain.chains import LLMChain
 
@@ -127,43 +128,191 @@ async def analyze_journal_entry_with_ai(
         # logger.error(f"Failed text prefix: {text[:100]}...")
         return None # Return None on failure
 
-async def generate_journal_prompt(db: Session, user_id: uuid.UUID) -> str:
-    """Generates a contextual journal prompt based on recent entries."""
-    # Example prompts (consider making these more diverse or configurable)
-    default_prompts = [
-        "What are you grateful for today, and why?",
-        "Describe one small moment that brought you joy or peace recently.",
-        "What's one thing you accomplished today, and how did it make you feel?",
-        "If you could talk to your past self from one year ago, what encouragement or advice would you offer?",
-        "What is currently weighing on your mind? What's one small, manageable step you could take regarding it?",
-        "Describe a recent challenge. What did you learn from navigating it?",
-        "What activity helps you feel recharged or centered?",
-        "Is there anything you need to forgive yourself or someone else for?",
-        "What are you looking forward to in the coming days or weeks?",
-        "Reflect on a boundary you set recently. How did it feel?",
-    ]
+
+# Default prompts for fallback
+DEFAULT_PROMPTS = [
+    "What are you grateful for today, and why?",
+    "Describe one small moment that brought you joy or peace recently.",
+    "What's one thing you accomplished today, and how did it make you feel?",
+    "If you could talk to your past self from one year ago, what encouragement or advice would you offer?",
+    "What is currently weighing on your mind? What's one small, manageable step you could take regarding it?",
+    "Describe a recent challenge. What did you learn from navigating it?",
+    "What activity helps you feel recharged or centered?",
+    "Is there anything you need to forgive yourself or someone else for?",
+    "What are you looking forward to in the coming days or weeks?",
+    "Reflect on a boundary you set recently. How did it feel?",
+]
+
+# New prompt template for generating journal prompts using the LLM
+PROMPT_GENERATION_TEMPLATE = """You are an AI assistant designed to generate thoughtful and empathetic journal prompts.
+
+Based on the following context from the user's recent journal entries (if provided), create a *single*, concise, and open-ended journal prompt (1-2 sentences) to encourage reflection.
+
+If recent entries suggest negative feelings (sadness, stress, anxiety), consider a prompt focusing on self-compassion, resilience, or finding small positives.
+If recent entries are positive, perhaps suggest a prompt about savoring joy, expressing gratitude, or future aspirations.
+If context is neutral or unavailable, generate a general reflective prompt.
+
+Maintain a supportive and encouraging tone. Output *only* the generated prompt text, nothing else.
+
+Recent Context:
+{context}
+
+Generated Prompt:"""
+
+prompt_generation_prompt = ChatPromptTemplate.from_template(PROMPT_GENERATION_TEMPLATE)
+
+def _format_context_for_llm(entries: List[JournalEntry]) -> str:
+    """Helper function to format recent entries into a context string for the LLM."""
+    if not entries:
+        return "No recent entries available."
+
+    context_parts = []
+    # Limit context size to avoid overwhelming the LLM or hitting token limits
+    max_context_entries = 2 # Use last 2 entries for context
+    max_text_snippet = 150 # Max characters per entry snippet
+
+    for entry in entries[:max_context_entries]:
+        entry_desc = f"- Entry from {entry.created_at.strftime('%Y-%m-%d')}:"
+        if entry.mood:
+            entry_desc += f" Mood '{entry.mood}'."
+        if entry.content:
+            snippet = entry.content[:max_text_snippet]
+            # Add ellipsis if truncated
+            snippet += "..." if len(entry.content) > max_text_snippet else ""
+            entry_desc += f" Content starts with: \"{snippet}\"."
+        # Future enhancement: Could also include themes/sentiment from AIAnalysisResult if available and linked
+        context_parts.append(entry_desc)
+
+    return "\n".join(context_parts) if context_parts else "No recent entries available."
+
+
+async def generate_journal_prompt(
+    db: Session,
+    user_id: uuid.UUID,
+    provider: LLMProvider = LLMProvider.GEMINI # Allow specifying provider
+) -> str:
+    """
+    Generates a contextual journal prompt using an LLM based on recent entries.
+    Falls back to default prompts if LLM fails or no context is available.
+    """
+    recent_entries: List[JournalEntry] = []
+    context_str = "No recent entries available."
 
     try:
-        # Assuming get_user_journal_entries returns entries ordered newest first
-        recent_entries = crud.get_user_journal_entries(db, user_id=user_id, limit=3)
+        # 1. Fetch recent entries (assuming newest first)
+        # Ensure your crud function returns objects with created_at, mood, content
+        recent_entries = crud.get_user_journal_entries(db, user_id=user_id, limit=3) # Fetch a few for context
+        logger.debug(f"Fetched {len(recent_entries)} recent entries for user {user_id}")
 
-        if recent_entries and recent_entries[0].mood:
-            # Make mood comparison case-insensitive and more robust
-            last_mood = recent_entries[0].mood.strip().lower()
-            negative_indicators = {"negative", "sad", "anxious", "stressed", "angry", "frustrated"}
-            # Check if any part of the mood string matches known negative indicators
-            if any(indicator in last_mood for indicator in negative_indicators):
-                # Provide a prompt focused on shifting perspective or self-compassion
-                return random.choice([
-                    "Reflect on one positive interaction or observation from today, however small.",
-                    "What's one act of kindness (from you or towards you) you experienced recently?",
-                    "Describe something you appreciate about yourself today.",
-                    "Think about a past challenge you overcame. What strength did you use then that you can access now?"
-                ])
-        # If no recent entries or mood is not negative/not set, return a default prompt
-        return random.choice(default_prompts)
+        # 2. Format context for the LLM
+        context_str = _format_context_for_llm(recent_entries)
+        logger.debug(f"Formatted context for LLM: {context_str}")
 
     except Exception as e:
-        logger.error(f"Error generating prompt for user {user_id}: {e}", exc_info=True)
-        # Fallback to a default prompt on any error
-        return random.choice(default_prompts)
+        logger.error(f"Error fetching or formatting recent entries for user {user_id}: {e}", exc_info=True)
+        # Proceed without context, LLM will generate a general prompt
+
+    try:
+        # 3. Get LLM instance
+        llm = get_llm(provider)
+
+        # 4. Create LLM chain for prompt generation
+        # We want simple string output, so use StrOutputParser
+        chain = prompt_generation_prompt | llm | StrOutputParser()
+
+        logger.info(f"Requesting journal prompt from {provider} with context...")
+
+        # 5. Invoke LLM chain
+        generated_prompt = await chain.ainvoke({"context": context_str})
+
+        # 6. Clean up and validate the output
+        generated_prompt = generated_prompt.strip()
+
+        if generated_prompt:
+            logger.info(f"Successfully generated prompt using {provider}: '{generated_prompt}'")
+            return generated_prompt
+        else:
+            logger.warning(f"{provider} returned an empty prompt, falling back to default.")
+            # Fall through to fallback mechanism
+
+    except Exception as e:
+        logger.error(f"Error generating prompt using {provider} for user {user_id}: {e}", exc_info=True)
+        # Fall through to fallback mechanism
+
+    # 7. Fallback: Return a random default prompt if LLM fails or returns empty
+    logger.info(f"Falling back to default prompt for user {user_id}")
+    return random.choice(DEFAULT_PROMPTS)
+
+CHAT_TEMPLATE = """You are an empathetic AI mental health companion. 
+Respond to the user's message while following these guidelines:
+
+- Be supportive and understanding
+- Provide practical, actionable suggestions when appropriate
+- Maintain professional boundaries (no medical advice, diagnosis, or treatment)
+- If user expresses serious crisis/harm, always recommend professional help
+- Keep responses concise (max 150 words)
+
+User's previous messages for context (if any):
+{chat_history}
+
+Current message:
+{message}
+
+Response:"""
+
+chat_prompt = ChatPromptTemplate.from_template(CHAT_TEMPLATE)
+
+async def generate_chat_response(
+    message: str,
+    chat_history: List[dict] = None,
+    provider: LLMProvider = LLMProvider.GEMINI
+) -> Optional[str]:
+    """
+    Generate a response to a user's chat message.
+    
+    Args:
+        message: The user's current message
+        chat_history: List of previous messages [{"role": "user"|"assistant", "content": "msg"}]
+        provider: The LLM provider to use
+    
+    Returns:
+        str: The AI's response
+        None: If an error occurred
+    """
+    if not message or not message.strip():
+        logger.warning("Attempted to process empty message")
+        return None
+
+    try:
+        # Format chat history for context
+        history_text = ""
+        if chat_history:
+            history_text = "\n".join([
+                f"{msg['role']}: {msg['content']}"
+                for msg in chat_history[-3:]  # Only use last 3 messages for context
+            ])
+
+        # Get LLM instance
+        llm = get_llm(provider)
+
+        # Create chain with string output
+        chain = chat_prompt | llm | StrOutputParser()
+
+        # Generate response
+        logger.info(f"Sending chat request to {provider}")
+        response = await chain.ainvoke({
+            "message": message,
+            "chat_history": history_text
+        })
+
+        response = response.strip()
+        if response:
+            logger.info(f"Successfully generated chat response using {provider}")
+            return response
+        
+        logger.warning(f"{provider} returned empty response")
+        return "I apologize, but I'm having trouble generating a response. Could you try rephrasing your message?"
+
+    except Exception as e:
+        logger.error(f"Error generating chat response using {provider}: {e}", exc_info=True)
+        return "I apologize, but I'm experiencing technical difficulties. Please try again later."

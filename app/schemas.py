@@ -86,3 +86,12 @@ class DeletionConfirmation(BaseModel):
     message: str
     deleted_user_id: Optional[uuid.UUID] = None
     deleted_entry_count: Optional[int] = None
+    
+    
+    
+class ChatMessage(BaseModel):
+    message: str = Field(..., min_length=1, max_length=500)
+
+class ChatResponse(BaseModel):
+    response: str
+    error: Optional[str] = None
