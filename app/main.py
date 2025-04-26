@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import RedirectResponse
 import logging
 
 from app.core.config import settings
@@ -49,12 +50,8 @@ app.include_router(journal.router)
 
 @app.get("/")
 async def root():
-    """Root endpoint that returns basic API information."""
-    return {
-        "message": "Welcome to the Mental Health Journal API",
-        "version": "1.0.0",
-        "docs": "/docs",
-    }
+    """Root endpoint that redirects to API documentation."""
+    return RedirectResponse(url="/docs")
 
 @app.get("/health")
 async def health_check():

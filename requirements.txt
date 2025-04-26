@@ -5,6 +5,7 @@ uvicorn[standard]
 # Database
 sqlalchemy
 psycopg2-binary
+alembic
 
 # Authentication and Security
 python-jose[cryptography]

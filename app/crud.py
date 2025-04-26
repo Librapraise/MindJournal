@@ -16,7 +16,12 @@ def get_user_by_email(db: Session, email: str) -> Optional[models.User]:
 
 def create_user(db: Session, user: schemas.UserCreate) -> models.User:
     hashed_password = auth.get_password_hash(user.password)
-    db_user = models.User(email=user.email, hashed_password=hashed_password)
+    db_user = models.User(
+        email=user.email,
+        hashed_password=hashed_password,
+        first_name=user.first_name, # Add this
+        last_name=user.last_name    # Add this
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

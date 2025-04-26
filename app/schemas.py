@@ -16,14 +16,14 @@ class TokenData(BaseModel):
 # --- User Schemas ---
 class UserBase(BaseModel):
     email: EmailStr
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=8) # Enforce minimum password length
 
 class User(UserBase):
     id: uuid.UUID
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
     is_active: bool
     created_at: datetime
 
