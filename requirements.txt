@@ -1,0 +1,21 @@
+# FastAPI and Server
+fastapi[all]
+uvicorn[standard]
+
+# Database
+sqlalchemy
+psycopg2-binary
+
+# Authentication and Security
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+python-dotenv
+
+# AI/LLM Integration
+langchain
+langchain-google-genai
+
+# Utilities
+pydantic[email]
+email-validator
