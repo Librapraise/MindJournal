@@ -67,8 +67,8 @@ export default function AuthPage() {
       return;
     }
 
-    if (formData.password.length < 6) {
-      setErrorMessage('Password must be at least 6 characters long');
+    if (formData.password.length < 8) {
+      setErrorMessage('Password must be at least 8 characters long');
       return;
     }
 
@@ -236,7 +236,7 @@ export default function AuthPage() {
             >
               {!isLogin && (
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Full Name</label>
                   <input
                     type="text"
                     name="fullName"
@@ -249,7 +249,7 @@ export default function AuthPage() {
                 </div>
               )}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Email</label>
                 <input
                   type="email"
                   name="email"
@@ -261,7 +261,7 @@ export default function AuthPage() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Password</label>
                 <input
                   type="password"
                   name="password"
@@ -274,7 +274,7 @@ export default function AuthPage() {
               </div>
               {!isLogin && (
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Confirm Password</label>
                   <input
                     type="password"
                     name="confirmPassword"
@@ -289,7 +289,7 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="cursor-pointer w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
+                className="cursor-pointer font-bold w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
               >
                 {loading ? 'Processing...' : isLogin ? 'Login' : 'Create Account'}
               </button>
