@@ -1,34 +1,34 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import MoodChart from "../components/MoodChart";
+import DailyPrompt from "../components/DailyPrompt";
+import RecentEntries from "../components/RecentEntries";
+import Insights from "../components/Insights";
+import { Button } from "../components/ui/button";
 
-export default function Dashboard() {
-  const router = useRouter();
-
-  useEffect(() => {
-    // Check if the user is authenticated (optional future upgrade)
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/auth');
-    }
-  }, [router]);
-
+export default function DashboardPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-blue-100 to-blue-300 p-6">
-      <h1 className="text-4xl font-bold text-blue-700 mb-4">Welcome to Your Dashboard!</h1>
-      <p className="text-gray-700 mb-6 text-center max-w-md">
-        This is your personal space to reflect, track your mental health journey, and access insightful tools designed just for you.
-      </p>
-      <button
-        onClick={() => {
-          localStorage.removeItem('token');
-          router.push('/auth');
-        }}
-        className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-      >
-        Logout
-      </button>
-    </div>
+    <main className="flex-1 p-6 space-y-6 overflow-auto bg-blue-50 min-h-screen">
+      {/* Header Actions */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-700">Dashboard</h1>
+        <div className="flex space-x-4">
+          <Button variant="outline">View Calendar</Button>
+          <Button variant="primary">New Entry</Button>
+        </div>
+      </div>
+
+      {/* Mood Trends */}
+      <MoodChart />
+
+      {/* Today's Prompt */}
+      <DailyPrompt />
+
+      {/* Recent Entries */}
+      <RecentEntries />
+
+      {/* AI-Generated Insights */}
+      <Insights />
+    </main>
   );
 }
