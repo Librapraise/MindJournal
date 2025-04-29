@@ -289,7 +289,7 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="cursor-pointer font-bold w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
+                className="cursor-pointer font-bold w-full bg-blue-500 text-white py-2 mt-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
               >
                 {loading ? 'Processing...' : isLogin ? 'Login' : 'Create Account'}
               </button>
@@ -303,7 +303,7 @@ export default function AuthPage() {
             </div>
           )}
 
-          {/* Social Logins */}
+          {/* Social Logins 
           <div className="text-center mt-6">
             <p className="text-sm text-gray-400">Or continue with</p>
             <div className="flex justify-center gap-4 mt-3">
@@ -318,6 +318,7 @@ export default function AuthPage() {
               ))}
             </div>
           </div>
+          */}
 
           {/* Forgot Password */}
           {isLogin && (

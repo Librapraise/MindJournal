@@ -8,7 +8,7 @@ export default function MoodChart() {
   const [activeTab, setActiveTab] = useState('Week');
 
   useEffect(() => {
-    axios.get('https://mentalheathapp.vercel.app/api/v1/journal/insights/')
+    axios.get('https://mentalheathapp.vercel.app/journal/insights/')
       .then(res => setData(res.data))
       .catch(err => console.error(err));
   }, []);
@@ -29,7 +29,7 @@ export default function MoodChart() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-3 py-1 rounded-full text-sm ${
+            className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
               activeTab === tab ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-blue-100'
             }`}
           >

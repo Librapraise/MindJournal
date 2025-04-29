@@ -137,16 +137,18 @@ const Sidebar = () => {
         {/* Brand Logo & Toggle Button */}
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <div className="flex items-center space-x-2">
-            <div className="flex-shrink-0 h-8 w-8 bg-blue-500 rounded-md flex items-center justify-center">
-              <span className="text-white font-medium">M</span>
-            </div>
-            {!isCollapsed && <span className="text-blue-600 font-semibold text-lg">MindJournal</span>}
+            <a href="/" className='cursor-pointer flex items-center justify-center gap-2'>
+              <div className="flex-shrink-0 h-8 w-8 bg-blue-500 rounded-md flex items-center justify-center">
+                <span className="text-white font-bold">M</span>
+              </div>
+              {!isCollapsed && <span className="text-blue-600 font-semibold text-lg">MindJournal</span>}
+            </a>
           </div>
           
           {/* Toggle Button - Hidden on mobile */}
           <button 
             onClick={toggleSidebar} 
-            className="p-1 rounded-md text-gray-400 hover:bg-gray-100 hidden lg:block"
+            className="p-1 rounded-md text-gray-400 hover:bg-gray-100 hidden"
             aria-label="Toggle sidebar"
           >
             <ChevronRight size={18} className={`transition-transform duration-300 ${isCollapsed ? '' : 'rotate-180'}`} />
