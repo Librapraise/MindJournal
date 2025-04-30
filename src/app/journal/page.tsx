@@ -104,16 +104,17 @@ const JournalPage: React.FC = () => {
     ],
     content: `Today I'm feeling a bit mixed. The morning started with some challenges at work, but I managed to find solutions by collaborating with my team.
 
-I noticed that my stress levels decreased after taking a short walk during lunch break.
+              I noticed that my stress levels decreased after taking a short walk during lunch break.
 
-I've been practicing the breathing techniques I learned last week, and they seem to be helping when I feel overwhelmed. Five minutes of focused breathing really changes my perspective.
+              I've been practicing the breathing techniques I learned last week, and they seem to be helping when I feel overwhelmed. Five minutes of focused breathing really changes my perspective.
 
-Things I'm grateful for today:
-- The supportive message from my friend
-- Finding time to read a few pages of my book
-- The sunny weather after days of rain
+              Things I'm grateful for today:
+              - The supportive message from my friend
+              - Finding time to read a few pages of my book
+              - The sunny weather after days of rain
 
-Tomorrow I want to make sure I start the day with a short meditation session before checking emails.`,
+              Tomorrow I want to make sure I start the day with a short meditation session before checking emails.
+              `,
     onUpdate: ({ editor }) => {
       setEntry(prev => ({ ...prev, content: editor.getHTML() }));
     }
@@ -132,56 +133,60 @@ Tomorrow I want to make sure I start the day with a short meditation session bef
   ];
 
   // Button Handlers
-  const saveJournalEntry = async (isDraft: boolean = false) => {
-    if (!entry.title) {
-      alert('Please add a title for your journal entry');
-      return;
-    }
+// Update this saveJournalEntry function in your JournalPage component
 
-    setIsSubmitting(true);
-    setApiError(null);
+const saveJournalEntry = async (isDraft: boolean = false) => {
+  if (!entry.title) {
+    alert('Please add a title for your journal entry');
+    return;
+  }
+
+  setIsSubmitting(true);
+  setApiError(null);
+  
+  try {
+    // Get the content from the editor
+    const editorContent = editor?.getHTML() || entry.content;
     
-    try {
-      // Create the API request payload based on FastAPI schema
-      const entryPayload: JournalEntryCreate = {
-        title: entry.title,
-        content: editor?.getHTML() || entry.content,
-        date: entry.date,
-        time_of_day: entry.time_of_day,
-        tags: entry.tags,
-        mood: selectedMood || undefined,
-        is_draft: isDraft
-      };
+    // Create the API request payload based on FastAPI schema
+    const entryPayload: JournalEntryCreate = {
+      title: entry.title,
+      content: editorContent,
+      date: entry.date,
+      time_of_day: entry.time_of_day,
+      tags: entry.tags,
+      mood: selectedMood || undefined,
+      is_draft: isDraft
+    };
 
-      // Use the correct API endpoint from the FastAPI router
-      const response = await fetch('https://mentalheathapp.vercel.app/journal/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Add authentication headers as needed by your auth.get_current_user dependency
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(entryPayload),
-      });
+    // Use the correct API endpoint from the FastAPI router
+    const response = await fetch('https://mentalheathapp.vercel.app/journal/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // Add authentication headers as needed by your auth.get_current_user dependency
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify(entryPayload),
+    });
 
-      if (response.ok) {
-        const savedEntry = await response.json();
-        alert(isDraft ? 'Draft saved successfully!' : 'Journal entry saved successfully!');
-        
-        // Optional: Redirect to entry view or entries list
-        // window.location.href = `/journal/${savedEntry.id}`;
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to save journal entry');
-      }
-    } catch (error) {
-      console.error('Error saving journal entry:', error);
-      setApiError(error instanceof Error ? error.message : 'Failed to save journal entry. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+    if (response.ok) {
+      const savedEntry = await response.json();
+      alert(isDraft ? 'Draft saved successfully!' : 'Journal entry saved successfully!');
+      
+      // Optional: Redirect to entry view or entries list
+      // window.location.href = `/journal/${savedEntry.id}`;
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to save journal entry');
     }
-  };
-
+  } catch (error) {
+    console.error('Error saving journal entry:', error);
+    setApiError(error instanceof Error ? error.message : 'Failed to save journal entry. Please try again.');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
   const handleTagKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && newTag.trim()) {
       e.preventDefault();
@@ -283,7 +288,7 @@ Tomorrow I want to make sure I start the day with a short meditation session bef
           <button
             onClick={() => saveJournalEntry(false)}
             disabled={isSubmitting}
-            className="cursor-pointer px-4 py-2 bg-blue-600 rounded-md text-sm font-medium text-white hover:bg-blue-700"
+            className="cursor-pointer px-3 py-2 text-[12px] md:px-4 md:py-2 md:text-sm bg-blue-600 rounded-md text-sm font-medium text-white hover:bg-blue-700"
           >
             {isSubmitting ? 'Saving...' : 'Save Entry'}
           </button>
@@ -434,7 +439,7 @@ Tomorrow I want to make sure I start the day with a short meditation session bef
               View patterns and trends from your journal entries
             </p>
             <a 
-              href="/journal/insights"
+              href="/insights"
               className="w-full inline-block text-center px-4 py-2 bg-indigo-50 text-indigo-700 rounded-md text-sm font-medium hover:bg-indigo-100"
             >
               View Insights

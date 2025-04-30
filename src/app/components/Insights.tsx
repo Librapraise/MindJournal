@@ -179,9 +179,9 @@ export default function Insights() {
       ) : (
         <div className="space-y-4">
           {insights.map((insight, index) => (
-            <div key={index} className="flex items-center justify-between">
+            <div key={index} className="flex items-center justify-between border-b nth-4:border-none border-gray-300 py-3">
               <div className="flex items-center">
-                <span className="text-xl mr-3">{insight.icon}</span>
+                <span className="text-xl mr-3 p-2 bg-gray-100 rounded-md">{insight.icon}</span>
                 <div>
                   <h3 className="font-medium text-gray-800">{insight.title}</h3>
                   <p className="text-sm text-gray-500">{insight.description}</p>

@@ -4,7 +4,7 @@ interface ButtonProps {
   }
   
   export function Button({ children, variant = 'primary' }: ButtonProps) {
-    const base = 'px-2 py-1 rounded-md font-semibold text-[10px] md:px-4 md:py-2 md:text-sm';
+    const base = 'px-3 py-2 rounded-md font-semibold text-[12px] md:px-4 md:py-2 md:text-sm';
     const variants = {
       primary: 'bg-blue-500 text-white hover:bg-blue-600 cursor-pointer',
       outline: 'border border-blue-500 text-blue-500 hover:bg-blue-100 cursor-pointer',
