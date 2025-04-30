@@ -143,7 +143,7 @@ export default function InsightsPage() {
     
     try {
       // Get authentication token from localStorage (make sure it's set during login)
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem('token');
       
       if (!token) {
         throw new Error('Authentication token not found. Please login again.');
