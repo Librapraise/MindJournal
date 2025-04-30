@@ -279,19 +279,19 @@ export default function InsightsPage() {
           <div className="flex flex-col items-center mt-4 md:flex-row space-x-4">
             <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
               <button 
-                className={`px-3 py-1 text-sm ${timeRange === 'week' ? 'bg-indigo-100 text-indigo-700' : 'bg-white text-gray-700'}`}
+                className={`cursor-pointer px-3 py-1 text-sm ${timeRange === 'week' ? 'bg-indigo-100 text-indigo-700' : 'bg-white text-gray-700'}`}
                 onClick={() => setTimeRange('week')}
               >
                 Week
               </button>
               <button 
-                className={`px-3 py-1 text-sm ${timeRange === 'month' ? 'bg-indigo-100 text-indigo-700' : 'bg-white text-gray-700'}`}
+                className={`cursor-pointer px-3 py-1 text-sm ${timeRange === 'month' ? 'bg-indigo-100 text-indigo-700' : 'bg-white text-gray-700'}`}
                 onClick={() => setTimeRange('month')}
               >
                 Month
               </button>
               <button 
-                className={`px-3 py-1 text-sm ${timeRange === 'year' ? 'bg-indigo-100 text-indigo-700' : 'bg-white text-gray-700'}`}
+                className={`cursor-pointer px-3 py-1 text-sm ${timeRange === 'year' ? 'bg-indigo-100 text-indigo-700' : 'bg-white text-gray-700'}`}
                 onClick={() => setTimeRange('year')}
               >
                 Year
@@ -299,13 +299,13 @@ export default function InsightsPage() {
             </div>
             <div className="flex items-center space-x-3 mt-1">
               <button 
-                className="flex items-center text-sm text-indigo-600 hover:text-indigo-800"
+                className="cursor-pointer flex items-center text-sm text-indigo-600 hover:text-indigo-800"
                 onClick={handleRefresh}
               >
                 <RefreshCw className="h-4 w-4 mr-1" />
                 Refresh
               </button>
-              <button className="flex items-center text-sm text-indigo-600 hover:text-indigo-800">
+              <button className="cursor-pointer flex items-center text-sm text-indigo-600 hover:text-indigo-800">
                 <Download className="h-4 w-4 mr-1" />
                 Export
               </button>

@@ -163,7 +163,7 @@ export default function Insights() {
     <div className="bg-white rounded-lg p-5 shadow-sm">
       <div className="flex justify-between items-center mb-3">
         <h2 className="text-lg font-semibold text-gray-800">Insights</h2>
-        <a href="#" className="text-blue-500 text-sm hover:underline">
+        <a href="/insights" className="text-blue-500 text-sm hover:underline">
           More
         </a>
       </div>
