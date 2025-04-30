@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Brain, Search, ArrowRight, BookOpen, Video, Headphones, Bookmark, Clock, Star, Filter } from "lucide-react";
 
+
 // Types for our resource data
 type Resource = {
   id: string;

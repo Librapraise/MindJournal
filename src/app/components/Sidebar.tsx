@@ -65,7 +65,7 @@ const Sidebar = () => {
         const response = await authAxios.get('/me');
         const userData = response.data;
 
-        const fullName = userData.fullName || 'User';
+        const fullName = userData.full_name || 'User';
         const initials = fullName
           .split(' ')
           .map((n: string) => n[0])

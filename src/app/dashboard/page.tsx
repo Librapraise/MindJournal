@@ -14,7 +14,9 @@ export default function DashboardPage() {
         <h1 className="text-xl md:text-2xl font-bold text-gray-700">Dashboard</h1>
         <div className="flex space-x-3">
           <Button variant="outline">View Calendar</Button>
-          <Button variant="primary">New Entry</Button>
+          <a href="/journal" className="">
+            <Button variant="primary">New Entry</Button>
+          </a>
         </div>
       </div>
 
