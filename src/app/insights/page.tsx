@@ -330,7 +330,7 @@ export default function InsightsPage() {
               <div className="h-64">
                 {insights?.mood_trends?.length ?? 0 > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={insights.mood_trends}>
+                    <LineChart data={insights?.mood_trends}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="date" />
                       <YAxis 
@@ -444,7 +444,7 @@ export default function InsightsPage() {
               <h3 className="text-lg font-medium text-gray-900 mb-4">Personalized Strategies</h3>
               <div className="space-y-4">
                 {insights?.coping_strategies?.length ?? 0 > 0 ? (
-                  insights.coping_strategies.map((strategy, index) => (
+                  insights?.coping_strategies?.map((strategy, index) => (
                     <div key={index} className="border-l-4 border-indigo-500 pl-4 py-2">
                       <h4 className="text-base font-medium text-gray-900">{strategy.title}</h4>
                       <p className="text-sm text-gray-600 mt-1">{strategy.description}</p>
