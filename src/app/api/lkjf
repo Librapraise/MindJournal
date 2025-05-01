@@ -1,0 +1,107 @@
+import { NextRequest, NextResponse } from 'next/server';
+
+// Mock user database for development
+const mockUsers = {
+  'mock-token-123': {
+    id: 'user1',
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    settings: {
+      notifications_enabled: true,
+      journal_reminders: true,
+    }
+  }
+};
+
+// Helper function to get user from token
+function getUserFromToken(request: NextRequest) {
+  // Get the Authorization header
+  const authHeader = request.headers.get('Authorization');
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+  
+  // Extract the token
+  const token = authHeader.split(' ')[1];
+  
+  // In a real app, you would verify the JWT token
+  // For development, we'll just check if it exists in our mock database
+  return mockUsers[token] || null;
+}
+
+// GET handler - Fetch user profile
+export async function GET(request: NextRequest) {
+  try {
+    // Authenticate user
+    const user = getUserFromToken(request);
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
+    // Return user profile
+    return NextResponse.json(user);
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT handler - Update user profile
+export async function PUT(request: NextRequest) {
+  try {
+    // Authenticate user
+    const user = getUserFromToken(request);
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
+    // Parse request body
+    const body = await request.json();
+    
+    // Validate inputs
+    if (body.name === undefined) {
+      return NextResponse.json(
+        { error: 'Name is required' },
+        { status: 400 }
+      );
+    }
+    
+    // Update user (in a real app, this would update the database)
+    const token = request.headers.get('Authorization')?.split(' ')[1] || '';
+    if (mockUsers[token]) {
+      // Update the mock user
+      mockUsers[token] = {
+        ...mockUsers[token],
+        name: body.name,
+        settings: {
+          ...mockUsers[token].settings,
+          ...(body.settings || {})
+        }
+      };
+    }
+    
+    // Return updated user
+    return NextResponse.json({
+      message: 'Profile updated successfully',
+      user: mockUsers[token]
+    });
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}

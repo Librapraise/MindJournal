@@ -5,6 +5,8 @@ import DailyPrompt from "../components/DailyPrompt";
 import RecentEntries from "../components/RecentEntries";
 import Insights from "../components/Insights";
 import { Button } from "../components/ui/button";
+import ThemeCloud from "../components/ThemeCloud";
+import MoodHistoryList from "../components/MoodHistory";
 
 export default function DashboardPage() {
   return (
@@ -22,6 +24,12 @@ export default function DashboardPage() {
 
       {/* Mood Trends */}
       <MoodChart />
+      
+      {/* Mood Themes */}
+      <ThemeCloud days={30} />
+
+      {/* Mood History */}
+      <MoodHistoryList />
 
       {/* Today's Prompt */}
       <DailyPrompt />

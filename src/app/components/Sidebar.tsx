@@ -114,6 +114,14 @@ const Sidebar = () => {
     router.push('/');
   };
 
+  // New function to handle navigation
+  const handleNavigation = (path: string) => {
+    if (isMobileOpen) {
+      setIsMobileOpen(false);
+    }
+    router.push(path);
+  };
+
   return (
     <>
       {/* Mobile Menu Toggle */}
@@ -137,7 +145,14 @@ const Sidebar = () => {
       >
         {/* Brand */}
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
-          <a href="/" className='cursor-pointer flex items-center justify-center gap-2'>
+          <a 
+            href="/" 
+            className='cursor-pointer flex items-center justify-center gap-2'
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavigation('/');
+            }}
+          >
             <div className="flex-shrink-0 h-8 w-8 rounded-md flex items-center justify-center">
               <span className="text-white font-bold">
                 <Brain className="h-8 w-8 text-blue-600" />
@@ -154,18 +169,22 @@ const Sidebar = () => {
               const isActive = pathname === item.path;
               return (
                 <li key={item.name}>
-                  <Link
+                  <a
                     href={item.path}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleNavigation(item.path);
+                    }}
                     className={`
                       flex items-center p-3 rounded-md 
                       ${isActive ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-100'}
                       ${isCollapsed ? 'justify-center' : 'justify-start space-x-3'}
-                      transition-all duration-200
+                      transition-all duration-200 cursor-pointer
                     `}
                   >
                     <span className="flex-shrink-0">{item.icon}</span>
                     {!isCollapsed && <span>{item.name}</span>}
-                  </Link>
+                  </a>
                 </li>
               );
             })}

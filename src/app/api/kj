@@ -1,0 +1,140 @@
+from fastapi import FastAPI, Request, Depends, HTTPException
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
+from typing import Dict, Optional, Any
+import uvicorn
+
+app = FastAPI(title="User Profile API")
+
+# Mock user database for development
+mock_users = {
+    'mock-token-123': {
+        'id': 'user1',
+        'name': 'John Doe',
+        'email': 'john.doe@example.com',
+        'settings': {
+            'notifications_enabled': True,
+            'journal_reminders': True,
+        }
+    }
+}
+
+# Mock user credentials for development
+mock_credentials = {
+    'mock-token-123': 'password123'
+}
+
+# Pydantic models for request validation
+class UserSettings(BaseModel):
+    notifications_enabled: Optional[bool] = None
+    journal_reminders: Optional[bool] = None
+
+class UserProfileUpdate(BaseModel):
+    name: str
+    settings: Optional[UserSettings] = None
+
+class PasswordUpdate(BaseModel):
+    currentPassword: str
+    newPassword: str = Field(..., min_length=8)
+
+# Helper function to get user from token
+async def get_user_from_token(request: Request):
+    # Get the Authorization header
+    auth_header = request.headers.get('Authorization')
+    
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return None
+    
+    # Extract the token
+    token = auth_header.split(' ')[1]
+    
+    # In a real app, you would verify the JWT token
+    # For development, we'll just check if it exists in our mock database
+    return mock_users.get(token)
+
+# Helper function to get token from request
+async def get_token_from_request(request: Request):
+    auth_header = request.headers.get('Authorization')
+    
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return None
+    
+    return auth_header.split(' ')[1]
+
+# Authentication dependency
+async def authenticate_user(request: Request):
+    user = await get_user_from_token(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return user
+
+# GET handler - Fetch user profile
+@app.get("/api/user", response_model=Dict[str, Any])
+async def get_user_profile(user: dict = Depends(authenticate_user)):
+    try:
+        # Return user profile
+        return user
+    except Exception as error:
+        print(f'Error fetching user profile: {error}')
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+# PUT handler - Update user profile
+@app.put("/api/user", response_model=Dict[str, Any])
+async def update_user_profile(
+    profile_update: UserProfileUpdate,
+    request: Request,
+    user: dict = Depends(authenticate_user)
+):
+    try:
+        # Get token for updating the mock database
+        token = await get_token_from_request(request)
+        
+        # Update user (in a real app, this would update the database)
+        if token in mock_users:
+            # Convert settings to dict if present
+            settings_update = profile_update.settings.dict() if profile_update.settings else {}
+            
+            # Update the mock user
+            mock_users[token].update({
+                'name': profile_update.name,
+            })
+            
+            # Update settings if provided
+            if settings_update:
+                mock_users[token]['settings'].update(settings_update)
+        
+        # Return updated user
+        return {
+            'message': 'Profile updated successfully',
+            'user': mock_users[token]
+        }
+    except Exception as error:
+        print(f'Error updating user profile: {error}')
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+# PUT handler - Change password
+@app.put("/api/user/password", response_model=Dict[str, str])
+async def change_password(password_update: PasswordUpdate, request: Request):
+    try:
+        # Get token
+        token = await get_token_from_request(request)
+        
+        if not token or token not in mock_credentials:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+        
+        # Verify current password (in a real app, this would use proper password hashing)
+        if password_update.currentPassword != mock_credentials[token]:
+            raise HTTPException(status_code=400, detail="Current password is incorrect")
+        
+        # Update password (in a real app, this would update the hashed password in the database)
+        mock_credentials[token] = password_update.newPassword
+        
+        return {'message': 'Password updated successfully'}
+    except HTTPException:
+        raise
+    except Exception as error:
+        print(f'Error updating password: {error}')
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+if __name__ == '__main__':
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
