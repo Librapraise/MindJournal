@@ -35,8 +35,11 @@ interface HistoricalInsights {
   mood_history_30d?: MoodHistory | null;
   theme_cloud_30d?: ThemeCloud | null;
 }
+interface MoodChartProps {
+  darkMode: boolean;
+}
 
-export default function MoodChart() {
+export default function MoodChart({ darkMode }: MoodChartProps) {
   const [moodData, setMoodData] = useState<{ date: string; value: number }[]>([]);
   const [activeTab, setActiveTab] = useState<'Day' | 'Week' | 'Month' | 'Year'>('Week');
   const [isLoading, setIsLoading] = useState(true);
@@ -169,22 +172,49 @@ export default function MoodChart() {
     return (sum / moodData.length).toFixed(1);
   };
 
+  // Theme colors based on darkMode state
+  const colors = {
+    background: darkMode ? 'bg-gray-800' : 'bg-white',
+    text: darkMode ? 'text-gray-200' : 'text-gray-700',
+    secondaryText: darkMode ? 'text-gray-400' : 'text-gray-600',
+    chartBackground: darkMode ? 'bg-gray-700' : 'bg-blue-50',
+    chartText: darkMode ? 'text-gray-300' : 'text-gray-400',
+    link: darkMode ? 'text-blue-400' : 'text-blue-500',
+    tabActive: darkMode ? 'bg-blue-600' : 'bg-blue-500',
+    tabInactive: darkMode ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-500 hover:bg-blue-100',
+    border: darkMode ? 'border-gray-700' : 'border-gray-200',
+    error: darkMode ? 'text-red-400' : 'text-red-500',
+    loading: darkMode ? 'text-gray-500' : 'text-gray-400',
+    line: darkMode ? '#a78bfa' : '#8884d8', // Tailwind purple-400 for dark mode
+    shadow: darkMode ? 'shadow-lg shadow-gray-900/20' : 'shadow-md'
+  };
+
+  // Custom tooltip style for dark mode
+  const tooltipStyle = {
+    backgroundColor: darkMode ? '#374151' : 'white', // gray-700 in dark mode
+    border: darkMode ? '1px solid #4B5563' : '1px solid #E5E7EB', // gray-600/gray-200
+    borderRadius: '6px',
+    padding: '8px',
+    color: darkMode ? '#E5E7EB' : '#374151', // gray-200/gray-700
+    fontSize: '12px'
+  };
+
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+    <div className={`p-6 rounded-xl ${colors.shadow} space-y-4 ${colors.background} ${colors.border}`}>
       {/* Title */}
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-gray-700">Mood Trends</h2>
-        <a href="#" className="text-sm text-blue-500 hover:underline">View All</a>
+        <h2 className={`text-lg font-semibold ${colors.text}`}>Mood Trends</h2>
+        <a href="#" className={`text-sm ${colors.link} hover:underline`}>View All</a>
       </div>
 
       {/* Tabs */}
-      <div className="flex space-x-2">
+      <div className={`flex space-x-2 ${colors.text}`}>
         {tabs.map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-              activeTab === tab ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-blue-100'
+              activeTab === tab ? `${colors.tabActive} text-white` : colors.tabInactive
             }`}
           >
             {tab}
@@ -193,48 +223,54 @@ export default function MoodChart() {
       </div>
 
       {/* Chart */}
-      <div className="bg-blue-50 h-48 rounded-lg overflow-hidden">
+      <div className={`${colors.chartBackground} h-48 rounded-lg overflow-hidden`}>
         {isLoading ? (
-          <div className="h-full flex items-center justify-center text-gray-400">
+          <div className={`h-full flex items-center justify-center ${colors.loading}`}>
             Loading mood data...
           </div>
         ) : error ? (
-          <div className="h-full flex items-center justify-center text-red-500">
+          <div className={`h-full flex items-center justify-center ${colors.error}`}>
             {error}
           </div>
         ) : moodData.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-gray-400">
+          <div className={`h-full flex items-center justify-center ${colors.loading}`}>
             No mood data available
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={moodData} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
+              <CartesianGrid 
+                strokeDasharray="3 3" 
+                vertical={false} 
+                opacity={0.2} 
+                stroke={darkMode ? '#6B7280' : '#E5E7EB'} // gray-500 / gray-200
+              />
               <XAxis 
                 dataKey="date" 
-                tick={{ fontSize: 10 }}
-                tickLine={false}
+                tick={{ fontSize: 10, fill: darkMode ? '#E5E7EB' : '#4B5563' }} // gray-200 / gray-600
+                tickLine={{ stroke: darkMode ? '#6B7280' : '#9CA3AF' }}
+                axisLine={{ stroke: darkMode ? '#6B7280' : '#D1D5DB' }} // gray-500 / gray-300
               />
               <YAxis 
                 domain={[0, 10]} 
                 ticks={[0, 2, 4, 6, 8, 10]} 
                 tickFormatter={(value) => value.toString()}
-                tick={{ fontSize: 10 }}
+                tick={{ fontSize: 10, fill: darkMode ? '#E5E7EB' : '#4B5563' }}
                 tickLine={false}
                 axisLine={false}
               />
               <Tooltip 
                 formatter={(value, name) => [`${value}/10`, 'Mood Rating']}
                 labelFormatter={(label) => `Date: ${label}`}
-                contentStyle={{ fontSize: 12 }}
+                contentStyle={tooltipStyle}
               />
               <Line 
                 type="monotone" 
                 dataKey="value" 
-                stroke="#8884d8" 
+                stroke={colors.line}
                 strokeWidth={2}
-                dot={{ r: 4, fill: "#8884d8" }}
-                activeDot={{ r: 6 }}
+                dot={{ r: 4, fill: colors.line }}
+                activeDot={{ r: 6, fill: darkMode ? '#c4b5fd' : '#a78bfa' }} // purple-300/purple-400
               />
             </LineChart>
           </ResponsiveContainer>
@@ -242,10 +278,10 @@ export default function MoodChart() {
       </div>
       
       {/* Summary */}
-      <div className="text-sm text-gray-600">
+      <div className={`text-sm ${colors.secondaryText}`}>
         {!isLoading && !error && moodData.length > 0 && (
           <div className="flex items-center">
-            <span className="font-medium">Average Mood:</span>
+            <span className={`font-medium ${colors.text}`}>Average Mood:</span>
             <span className="ml-2">
               {calculateAverageMood()}/10
             </span>

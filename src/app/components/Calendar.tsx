@@ -5,6 +5,7 @@ import { X, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 import axios from 'axios';
 
+
 const MOOD_COLORS = {
   'happy': 'bg-green-400',
   'content': 'bg-green-200',
@@ -23,7 +24,12 @@ interface CalendarModalProps {
   onClose: () => void;
 }
 
-export default function CalendarModal({ onClose }: CalendarModalProps) {
+interface CalendarModalProps {
+  onClose: () => void;
+  darkMode: boolean; // Add darkMode prop
+}
+
+export default function CalendarModal({ onClose, darkMode }: CalendarModalProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [moodEntries, setMoodEntries] = useState<{ date: string; mood: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -144,7 +150,8 @@ export default function CalendarModal({ onClose }: CalendarModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4 min-h-screen">
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 ${darkMode ? 'dark' : ''}`}>
+      {/* Modal Background */}
       <div 
         ref={modalRef}
         className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-auto"

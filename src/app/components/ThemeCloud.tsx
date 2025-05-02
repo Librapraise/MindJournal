@@ -10,9 +10,10 @@ interface ThemeData {
 
 interface ThemeCloudProps {
   days?: number;
+  darkMode?: boolean;
 }
 
-export default function ThemeCloud({ days = 30 }: ThemeCloudProps) {
+export default function ThemeCloud({ days = 30, darkMode = false }: ThemeCloudProps) {
   const [themes, setThemes] = useState<ThemeData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -81,26 +82,42 @@ export default function ThemeCloud({ days = 30 }: ThemeCloudProps) {
     return minOpacity + ((count / maxCount) * (1 - minOpacity));
   };
 
+  // Theme colors based on darkMode state
+  const colors = {
+    background: darkMode ? 'bg-gray-800' : 'bg-white',
+    cardBackground: darkMode ? 'bg-gray-700' : 'bg-blue-50',
+    text: darkMode ? 'text-gray-200' : 'text-gray-700',
+    secondaryText: darkMode ? 'text-gray-200' : 'text-gray-500',
+    titleText: darkMode ? 'text-gray-200' : 'text-gray-700',
+    errorText: darkMode ? 'text-red-400' : 'text-red-500',
+    loadingText: darkMode ? 'text-gray-500' : 'text-gray-400',
+    shadow: darkMode ? 'shadow-lg shadow-gray-900/20' : 'shadow-md',
+    // Theme tag colors
+    tagBackground: darkMode ? 'bg-indigo-900' : 'bg-blue-100',
+    tagText: darkMode ? 'text-indigo-200' : 'text-blue-700',
+    tagCount: darkMode ? 'text-indigo-300' : 'text-blue-500'
+  };
+
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+    <div className={`p-4 rounded-lg ${colors.shadow} ${colors.background} ${colors.text}`}>
       {/* Title */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-gray-700">Common Themes</h2>
-        <div className="text-sm text-gray-500">Last {days} days</div>
+      <div className="flex justify-between items-center mb-3">
+        <h2 className={`text-lg font-semibold ${colors.titleText}`}>Related Themes</h2>
+        <div className={`text-sm ${colors.secondaryText}`}>Last {days} days</div>
       </div>
 
       {/* Theme Cloud */}
-      <div className="bg-blue-50 min-h-[150px] p-4 rounded-lg">
+      <div className={`${colors.cardBackground} min-h-[150px] p-4 rounded-lg`}>
         {isLoading ? (
-          <div className="h-24 flex items-center justify-center text-gray-400">
+          <div className={`h-24 flex items-center justify-center ${colors.loadingText}`}>
             Loading themes...
           </div>
         ) : error ? (
-          <div className="h-24 flex items-center justify-center text-red-500">
+          <div className={`h-24 flex items-center justify-center ${colors.errorText}`}>
             {error}
           </div>
         ) : themes.length === 0 ? (
-          <div className="h-24 flex items-center justify-center text-gray-400">
+          <div className={`h-24 flex items-center justify-center ${colors.loadingText}`}>
             No themes found
           </div>
         ) : (
@@ -108,14 +125,14 @@ export default function ThemeCloud({ days = 30 }: ThemeCloudProps) {
             {themes.map((theme, index) => (
               <div 
                 key={index}
-                className="px-3 py-1 rounded-full bg-blue-100 text-blue-700"
+                className={`px-3 py-1 rounded-full ${colors.tagBackground} ${colors.tagText}`}
                 style={{ 
                   fontSize: getFontSize(theme.count),
                   opacity: getOpacity(theme.count)
                 }}
               >
                 {theme.theme}
-                <span className="ml-1 text-xs text-blue-500">({theme.count})</span>
+                <span className={`ml-1 text-xs ${colors.tagCount}`}>({theme.count})</span>
               </div>
             ))}
           </div>

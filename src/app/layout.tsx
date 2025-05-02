@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import ClientSidebarWrapper from "./ClientSidebarWrapper";
+import { ThemeProvider } from "./ThemeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,15 +27,37 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body>
-        <div className="flex h-screen">
-          <ClientSidebarWrapper />
-          <main className="flex-1 overflow-auto">
-            {children}
-          </main>
-        </div>
+      <head>
+        {/* Script to prevent flash of wrong theme */}
+        <Script id="theme-script" strategy="beforeInteractive">
+          {`
+            (function() {
+              // Check localStorage first
+              const storedTheme = localStorage.getItem('theme');
+              if (storedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+              } else if (storedTheme === 'light') {
+                document.documentElement.classList.remove('dark');
+              } else {
+                // If no stored preference, check system preference
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                  document.documentElement.classList.add('dark');
+                }
+              }
+            })();
+          `}
+        </Script>
+      </head>
+      <body className="transition-colors duration-200 bg-white dark:bg-gray-900">
+        <ThemeProvider>
+          <div className="flex h-screen">
+            <ClientSidebarWrapper />
+              <main className="flex-1 overflow-auto transition-colors duration-200 dark:text-white">
+                {children}
+              </main>
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
-

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -9,13 +8,15 @@ import {
   PieChart,
   FileQuestion,
   Settings,
-  ChevronRight,
   Menu,
   X,
   Brain,
-  LogOut
+  LogOut,
+  Moon,
+  Sun
 } from 'lucide-react';
 import axios from 'axios';
+import { useTheme } from '@/app/ThemeContext'; // Import our theme hook
 
 type NavItem = {
   name: string;
@@ -35,6 +36,7 @@ const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [user, setUser] = useState<UserProps | null>(null);
+  const { darkMode, toggleDarkMode } = useTheme(); // Use our theme hook
 
   // Axios instance for authenticated requests
   const authAxios = axios.create({
@@ -90,7 +92,8 @@ const Sidebar = () => {
 
   useEffect(() => {
     const checkIsMobile = () => {
-      setIsCollapsed(window.innerWidth < 1024);
+      // Only set isCollapsed for desktop/tablet views, not for mobile
+      setIsCollapsed(window.innerWidth < 1024 && window.innerWidth >= 640);
     };
     checkIsMobile();
     window.addEventListener('resize', checkIsMobile);
@@ -127,7 +130,7 @@ const Sidebar = () => {
       {/* Mobile Menu Toggle */}
       <button
         onClick={toggleMobileMenu}
-        className="fixed top-4 left-4 p-2 rounded-md bg-blue-100 text-blue-600 lg:hidden z-50"
+        className={`fixed top-4 left-4 p-2 rounded-md ${darkMode ? 'bg-gray-800 text-blue-400' : 'bg-blue-100 text-blue-600'} lg:hidden z-50`}
         aria-label="Toggle menu"
       >
         {isMobileOpen ? <X size={20} /> : <Menu size={20} />}
@@ -136,15 +139,15 @@ const Sidebar = () => {
       {/* Sidebar */}
       <div
         className={`
-          fixed top-0 left-0 h-full bg-white border-r border-gray-200 
-          transition-all duration-300 ease-in-out flex flex-col justify-between
+          fixed top-0 left-0 h-full border-r transition-all duration-300 ease-in-out flex flex-col justify-between
+          ${darkMode ? 'bg-gray-900 text-white border-gray-800' : 'bg-white text-gray-800 border-gray-200'}
           ${isCollapsed ? 'w-16' : 'w-64'} 
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} 
           lg:translate-x-0 z-40
         `}
       >
         {/* Brand */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-100">
+        <div className={`flex items-center justify-between p-4 border-b ${darkMode ? 'border-gray-800' : 'border-gray-100'}`}>
           <a 
             href="/" 
             className='cursor-pointer flex items-center justify-center gap-2'
@@ -154,11 +157,11 @@ const Sidebar = () => {
             }}
           >
             <div className="flex-shrink-0 h-8 w-8 rounded-md flex items-center justify-center">
-              <span className="text-white font-bold">
-                <Brain className="h-8 w-8 text-blue-600" />
+              <span className="font-bold">
+                <Brain className={`h-8 w-8 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
               </span>
             </div>
-            {!isCollapsed && <span className="text-blue-600 font-semibold text-lg">MindJournal</span>}
+            {(!isCollapsed || isMobileOpen) && <span className={`font-semibold text-lg ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>MindJournal</span>}
           </a>
         </div>
 
@@ -176,14 +179,20 @@ const Sidebar = () => {
                       handleNavigation(item.path);
                     }}
                     className={`
-                      flex items-center p-3 rounded-md 
-                      ${isActive ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-100'}
-                      ${isCollapsed ? 'justify-center' : 'justify-start space-x-3'}
-                      transition-all duration-200 cursor-pointer
+                      flex items-center p-3 rounded-md transition-all duration-200 cursor-pointer
+                      ${isActive 
+                        ? darkMode 
+                          ? 'bg-blue-900/30 text-blue-400' 
+                          : 'bg-blue-50 text-blue-600' 
+                        : darkMode 
+                          ? 'text-gray-300 hover:bg-gray-800' 
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }
+                      ${isCollapsed && !isMobileOpen ? 'justify-center' : 'justify-start space-x-3'}
                     `}
                   >
                     <span className="flex-shrink-0">{item.icon}</span>
-                    {!isCollapsed && <span>{item.name}</span>}
+                    {(!isCollapsed || isMobileOpen) && <span>{item.name}</span>}
                   </a>
                 </li>
               );
@@ -191,19 +200,38 @@ const Sidebar = () => {
           </ul>
         </nav>
 
-        {/* User Profile and Logout */}
-        <div className="border-t border-gray-200 p-4">
+        {/* User Profile, Theme Toggle and Logout */}
+        <div className={`border-t p-4 ${darkMode ? 'border-gray-800' : 'border-gray-200'}`}>
+          {/* Dark Mode Toggle */}
+          <button
+            onClick={toggleDarkMode}
+            className={`
+              w-full flex items-center p-2 rounded-md cursor-pointer mb-4
+              ${darkMode 
+                ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }
+              transition-all duration-200
+              ${isCollapsed && !isMobileOpen ? 'justify-center' : 'justify-start space-x-2'}
+            `}
+          >
+            {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+            {(!isCollapsed || isMobileOpen) && (
+              <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
+            )}
+          </button>
+
           {user && (
             <div
-              className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} mb-4`}
+              className={`flex items-center ${isCollapsed && !isMobileOpen ? 'justify-center' : 'space-x-3'} mb-4`}
             >
-              <div className="flex-shrink-0 h-8 w-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
+              <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${darkMode ? 'bg-gray-800 text-blue-400' : 'bg-blue-100 text-blue-600'}`}>
                 <span className="font-semibold text-sm">{user.initials}</span>
               </div>
-              {!isCollapsed && (
+              {(!isCollapsed || isMobileOpen) && (
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium text-gray-700">{user.name}</span>
-                  <span className="text-xs text-gray-500 truncate max-w-[180px]">{user.email}</span>
+                  <span className={`text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>{user.name}</span>
+                  <span className={`text-xs truncate max-w-[180px] ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{user.email}</span>
                 </div>
               )}
             </div>
@@ -213,13 +241,16 @@ const Sidebar = () => {
             onClick={handleLogout}
             className={`
               w-full flex items-center p-2 rounded-md cursor-pointer
-              text-red-600 hover:bg-red-50
+              ${darkMode 
+                ? 'text-red-400 hover:bg-red-900/30' 
+                : 'text-red-600 hover:bg-red-50'
+              }
               transition-all duration-200
-              ${isCollapsed ? 'justify-center' : 'justify-start space-x-2'}
+              ${isCollapsed && !isMobileOpen ? 'justify-center' : 'justify-start space-x-2'}
             `}
           >
             <LogOut size={18} />
-            {!isCollapsed && <span>Logout</span>}
+            {(!isCollapsed || isMobileOpen) && <span>Logout</span>}
           </button>
         </div>
       </div>

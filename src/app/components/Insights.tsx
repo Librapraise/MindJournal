@@ -17,7 +17,11 @@ type InsightItem = {
   trend: "positive" | "neutral" | "negative";
 };
 
-export default function Insights() {
+interface InsightsProps {
+  darkMode: boolean;
+}
+
+export default function Insights({ darkMode }: InsightsProps) {
   const [themeData, setThemeData] = useState<ThemeData[]>([]);
   const [insights, setInsights] = useState<InsightItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -160,43 +164,61 @@ export default function Insights() {
   };
 
   return (
-    <div className="bg-white rounded-lg p-5 shadow-sm">
-      <div className="flex justify-between items-center mb-3">
-        <h2 className="text-lg font-semibold text-gray-800">Insights</h2>
-        <a href="/insights" className="text-blue-500 text-sm hover:underline">
-          More
-        </a>
-      </div>
+    <div className={`${darkMode ? 'bg-gray-900' : 'bg-gray-50'} p-4 rounded-lg transition-colors duration-200`}>
+      {/* Card Container */}
+      <div className={`${darkMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-700'} rounded-lg p-5 shadow-sm transition-colors duration-200`}>
+        {/* Title */}
+        <div className="flex justify-between items-center mb-3">
+          <h2 className={`text-lg font-semibold ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>Insights</h2>
+          <a href="/insights" className={`${darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-500 hover:text-blue-600'} text-sm hover:underline transition-colors duration-200`}>
+            More
+          </a>
+        </div>
 
-      {isLoading ? (
-        <div className="text-center py-4">
-          <p className="text-gray-400">Loading insights...</p>
-        </div>
-      ) : error ? (
-        <div className="text-center py-4">
-          <p className="text-red-500">{error}</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {insights.map((insight, index) => (
-            <div key={index} className="flex items-center justify-between border-b nth-4:border-none border-gray-300 py-3">
-              <div className="flex items-center">
-                <span className="text-xl mr-3 p-2 bg-gray-100 rounded-md">{insight.icon}</span>
-                <div>
-                  <h3 className="font-medium text-gray-800">{insight.title}</h3>
-                  <p className="text-sm text-gray-500">{insight.description}</p>
+        {isLoading ? (
+          <div className="text-center py-4">
+            <p className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Loading insights...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-4">
+            <p className="text-red-500">{error}</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {insights.map((insight, index) => (
+              <div 
+                key={index} 
+                className={`flex items-center justify-between ${
+                  index < insights.length - 1 ? `border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}` : ''
+                } py-3 transition-colors duration-200`}
+              >
+                <div className="flex items-center">
+                  <span className={`text-xl mr-3 p-2 ${darkMode ? 'bg-gray-700' : 'bg-gray-100'} rounded-md transition-colors duration-200`}>
+                    {insight.icon}
+                  </span>
+                  <div>
+                    <h3 className={`font-medium ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>
+                      {insight.title}
+                    </h3>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      {insight.description}
+                    </p>
+                  </div>
+                </div>
+                <div className={`text-sm font-medium ${
+                  insight.trend === "positive" ? 
+                    darkMode ? "text-green-400" : "text-green-500" : 
+                  insight.trend === "negative" ? 
+                    darkMode ? "text-red-400" : "text-red-500" : 
+                    darkMode ? "text-gray-400" : "text-gray-500"
+                } transition-colors duration-200`}>
+                  {insight.percentage}
                 </div>
               </div>
-              <div className={`text-sm font-medium ${
-                insight.trend === "positive" ? "text-green-500" : 
-                insight.trend === "negative" ? "text-red-500" : "text-gray-500"
-              }`}>
-                {insight.percentage}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

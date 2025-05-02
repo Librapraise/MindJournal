@@ -147,6 +147,7 @@ const JournalEditor: React.FC<JournalEditorProps> = ({ entry, updateEntry, setEd
         <EditorContent 
           editor={editor} 
           className="min-h-[250px] border border-gray-300 rounded-md p-4 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none" 
+          placeholder='Write your journal entry here...'
         />
       </div>
     </>

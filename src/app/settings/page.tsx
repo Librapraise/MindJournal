@@ -469,11 +469,6 @@ export default function Settings() {
               desc: "Receive app notifications",
             },
             {
-              name: "darkModeEnabled",
-              label: "Dark Mode",
-              desc: "Use dark theme throughout the app",
-            },
-            {
               name: "journalReminders",
               label: "Journal Reminders",
               desc: "Get reminders to write your journal",
