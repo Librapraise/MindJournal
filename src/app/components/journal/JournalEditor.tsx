@@ -18,9 +18,10 @@ interface JournalEditorProps {
   };
   updateEntry: (field: string, value: any) => void;
   setEditor: (editor: any) => void;
+  darkMode?: boolean;
 }
 
-const JournalEditor: React.FC<JournalEditorProps> = ({ entry, updateEntry, setEditor }) => {
+const JournalEditor: React.FC<JournalEditorProps> = ({ entry, updateEntry, setEditor, darkMode = false }) => {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -45,32 +46,64 @@ const JournalEditor: React.FC<JournalEditorProps> = ({ entry, updateEntry, setEd
     if (!editor) return null;
 
     return (
-      <div className="flex items-center space-x-2 mb-4 border-b pb-2">
+      <div className={`flex items-center space-x-2 mb-4 border-b pb-2 ${darkMode ? 'border-gray-700' : 'border-gray-300'}`}>
         <button
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className={`p-1 rounded ${editor.isActive('bold') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
+          className={`p-1 rounded ${
+            editor.isActive('bold') 
+              ? darkMode 
+                ? 'bg-blue-900 text-blue-300' 
+                : 'bg-blue-100 text-blue-600' 
+              : darkMode 
+                ? 'text-gray-300' 
+                : 'text-gray-600'
+          }`}
           title="Bold"
         >
           <Bold size={16} />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={`p-1 rounded ${editor.isActive('italic') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
+          className={`p-1 rounded ${
+            editor.isActive('italic') 
+              ? darkMode 
+                ? 'bg-blue-900 text-blue-300' 
+                : 'bg-blue-100 text-blue-600' 
+              : darkMode 
+                ? 'text-gray-300' 
+                : 'text-gray-600'
+          }`}
           title="Italic"
         >
           <Italic size={16} />
         </button>
         <button
           onClick={() => editor.chain().focus().toggleUnderline().run()}
-          className={`p-1 rounded ${editor.isActive('underline') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
+          className={`p-1 rounded ${
+            editor.isActive('underline') 
+              ? darkMode 
+                ? 'bg-blue-900 text-blue-300' 
+                : 'bg-blue-100 text-blue-600' 
+              : darkMode 
+                ? 'text-gray-300' 
+                : 'text-gray-600'
+          }`}
           title="Underline"
         >
           <UnderlineIcon size={16} />
         </button>
-        <span className="text-gray-300">|</span>
+        <span className={darkMode ? 'text-gray-600' : 'text-gray-300'}>|</span>
         <button
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={`p-1 rounded ${editor.isActive('bulletList') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
+          className={`p-1 rounded ${
+            editor.isActive('bulletList') 
+              ? darkMode 
+                ? 'bg-blue-900 text-blue-300' 
+                : 'bg-blue-100 text-blue-600' 
+              : darkMode 
+                ? 'text-gray-300' 
+                : 'text-gray-600'
+          }`}
           title="Bullet List"
         >
           <List size={16} />
@@ -82,14 +115,22 @@ const JournalEditor: React.FC<JournalEditorProps> = ({ entry, updateEntry, setEd
               editor.chain().focus().setLink({ href: url }).run();
             }
           }}
-          className={`p-1 rounded ${editor.isActive('link') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
+          className={`p-1 rounded ${
+            editor.isActive('link') 
+              ? darkMode 
+                ? 'bg-blue-900 text-blue-300' 
+                : 'bg-blue-100 text-blue-600' 
+              : darkMode 
+                ? 'text-gray-300' 
+                : 'text-gray-600'
+          }`}
           title="Add Link"
         >
           <LinkIcon size={16} />
         </button>
         <button
           onClick={() => editor.chain().focus().setHorizontalRule().run()}
-          className="p-1 rounded text-gray-600"
+          className={`p-1 rounded ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}
           title="Horizontal Rule"
         >
           <Minus size={16} />
@@ -103,12 +144,12 @@ const JournalEditor: React.FC<JournalEditorProps> = ({ entry, updateEntry, setEd
       {/* Date and time section */}
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="flex items-center">
-          <span className="text-sm font-medium text-gray-700 mr-2">Date:</span>
+          <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mr-2`}>Date:</span>
           <input
             type="text"
             value={entry.date}
             onChange={(e) => updateEntry('date', e.target.value)}
-            className="border border-gray-300 rounded-md p-2 text-gray-800 focus:ring-0 focus:outline-none text-sm"
+            className={`border ${darkMode ? 'border-gray-700 bg-gray-800 text-gray-200' : 'border-gray-300 text-gray-800'} rounded-md p-2 focus:ring-0 focus:outline-none text-sm ${darkMode ? 'focus:border-indigo-400' : 'focus:border-indigo-500'}`}
             placeholder="DD/MM/YYYY"
           />
         </div>
@@ -116,7 +157,9 @@ const JournalEditor: React.FC<JournalEditorProps> = ({ entry, updateEntry, setEd
           <select
             value={entry.time_of_day}
             onChange={(e) => updateEntry('time_of_day', e.target.value)}
-            className="border border-gray-300 rounded-md p-2 bg-transparent text-gray-800 focus:ring-0 text-sm"
+            className={`border rounded-md p-2 focus:ring-0 text-sm ${
+              darkMode ? 'border-gray-700 bg-gray-800 text-gray-200' : 'border-gray-300 bg-transparent text-gray-800'
+            }`}
           >
             <option value="Morning">Morning</option>
             <option value="Afternoon">Afternoon</option>
@@ -128,7 +171,7 @@ const JournalEditor: React.FC<JournalEditorProps> = ({ entry, updateEntry, setEd
 
       {/* Title */}
       <div className="mb-6">
-        <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="title" className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
           Title
         </label>
         <input
@@ -137,16 +180,24 @@ const JournalEditor: React.FC<JournalEditorProps> = ({ entry, updateEntry, setEd
           value={entry.title}
           onChange={(e) => updateEntry('title', e.target.value)}
           placeholder="How I'm feeling today..."
-          className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none sm:text-sm"
+          className={`mt-1 block w-full border rounded-md p-2 sm:text-sm ${
+            darkMode 
+              ? 'border-gray-700 bg-gray-800 text-gray-200 focus:ring-indigo-400 focus:border-indigo-400' 
+              : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 text-gray-800'
+          } focus:outline-none`}
         />
       </div>
 
       {/* Editor */}
-      <div className="prose max-w-none">
+      <div className={`prose max-w-none ${darkMode ? 'prose-invert' : ''}`}>
         <EditorToolbar />
         <EditorContent 
           editor={editor} 
-          className="min-h-[250px] border border-gray-300 rounded-md p-4 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none" 
+          className={`min-h-[250px] border rounded-md p-4 ${
+            darkMode 
+              ? 'border-gray-700 bg-gray-800 text-gray-200 focus:border-indigo-400 focus:ring-indigo-400' 
+              : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
+          } focus:outline-none`} 
           placeholder='Write your journal entry here...'
         />
       </div>

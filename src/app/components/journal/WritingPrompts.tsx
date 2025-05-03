@@ -4,9 +4,10 @@ import { WritingPrompt } from '@/app/types';
 
 interface WritingPromptsProps {
   editor: any;
+  darkMode?: boolean;
 }
 
-const WritingPrompts: React.FC<WritingPromptsProps> = ({ editor }) => {
+const WritingPrompts: React.FC<WritingPromptsProps> = ({ editor, darkMode = false }) => {
   const [suggestions, setSuggestions] = useState<WritingPrompt[]>([
     {
       text: 'Since you mentioned stress management, would you like to explore what specific techniques work best for you?',
@@ -67,16 +68,20 @@ const WritingPrompts: React.FC<WritingPromptsProps> = ({ editor }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h3 className="text-medium font-bold text-gray-700 mb-3">AI Writing Prompts</h3>
+    <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6`}>
+      <h3 className={`text-medium font-bold ${darkMode ? 'text-gray-200' : 'text-gray-700'} mb-3`}>AI Writing Prompts</h3>
       <div className="space-y-3">
         {suggestions.map((prompt, index) => (
           <div
             key={index}
             className={`p-3 rounded-md cursor-pointer transition ${
               prompt.type === 'stress'
-                ? 'bg-indigo-100 text-indigo-800'
-                : 'bg-gray-50 hover:bg-gray-100'
+                ? darkMode 
+                  ? 'bg-indigo-900 text-indigo-200' 
+                  : 'bg-indigo-100 text-indigo-800'
+                : darkMode 
+                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' 
+                  : 'bg-gray-50 hover:bg-gray-100 text-gray-800'
             }`}
             onClick={() => handlePromptClick(prompt.text)}
           >

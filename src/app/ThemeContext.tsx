@@ -6,6 +6,8 @@ type ThemeContextType = {
   darkMode: boolean;
   toggleDarkMode: () => void;
   toggleTheme: () => void; // Add the toggleTheme function
+  theme: string; // Add the theme property
+  setTheme: (theme: string) => void; 
 };
 
 
@@ -14,6 +16,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Initialize with user preference or system preference
   const [darkMode, setDarkMode] = useState<boolean>(false);
+  const [theme, setTheme] = useState<string>('light'); // Initialize theme state
 
   useEffect(() => {
     // Check local storage first
@@ -47,7 +50,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   return (
-    <ThemeContext.Provider value={{ darkMode, toggleDarkMode, toggleTheme }}>
+    <ThemeContext.Provider value={{ darkMode, toggleDarkMode, toggleTheme, theme: darkMode ? 'dark' : 'light', setTheme: toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );

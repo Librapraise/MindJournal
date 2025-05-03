@@ -43,13 +43,13 @@ export default function DashboardPage() {
           >
             {darkMode ? <Sun size={18} /> : <Moon size={18} />}
           </button>
-          
-          <button 
+          <Button 
+            variant="outline"
             onClick={() => setShowCalendar(true)}
-            className={`btn-outline cursor-pointer ${darkMode ? 'border p-1 rounded-md border-gray-400 text-gray-300 hover:bg-gray-800' : 'border p-1 rounded-md border-gray-300'}`}
+            className={darkMode ? 'primary-dark' : 'primary-light'}
           >
             View Calendar
-          </button>
+          </Button>
           
           <a href="/journal">
             <Button 

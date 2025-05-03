@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import ClientSidebarWrapper from "./ClientSidebarWrapper";
 import { ThemeProvider } from "./ThemeContext";
@@ -27,27 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <head>
-        {/* Script to prevent flash of wrong theme */}
-        <Script id="theme-script" strategy="beforeInteractive">
-          {`
-            (function() {
-              // Check localStorage first
-              const storedTheme = localStorage.getItem('theme');
-              if (storedTheme === 'dark') {
-                document.documentElement.classList.add('dark');
-              } else if (storedTheme === 'light') {
-                document.documentElement.classList.remove('dark');
-              } else {
-                // If no stored preference, check system preference
-                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                  document.documentElement.classList.add('dark');
-                }
-              }
-            })();
-          `}
-        </Script>
-      </head>
+
       <body className="transition-colors duration-200 bg-white dark:bg-gray-900">
         <ThemeProvider>
           <div className="flex h-screen">

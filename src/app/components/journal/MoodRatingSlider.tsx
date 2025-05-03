@@ -5,12 +5,14 @@ interface MoodRatingSliderProps {
   moodRating: number;
   setMoodRating: (rating: number) => void;
   isSubmitting: boolean;
+  darkMode?: boolean;
 }
 
 const MoodRatingSlider: React.FC<MoodRatingSliderProps> = ({ 
   moodRating, 
   setMoodRating, 
-  isSubmitting 
+  isSubmitting,
+  darkMode = false 
 }) => {
   // Mood rating options
   const moodOptions = [
@@ -31,8 +33,8 @@ const MoodRatingSlider: React.FC<MoodRatingSliderProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <label htmlFor="mood-rating" className="block text-medium font-bold text-gray-700 mb-2">
+    <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6`}>
+      <label htmlFor="mood-rating" className={`block text-medium font-bold ${darkMode ? 'text-gray-200' : 'text-gray-700'} mb-2`}>
         Mood Rating: {moodRating}/10
       </label>
       <input
@@ -42,10 +44,10 @@ const MoodRatingSlider: React.FC<MoodRatingSliderProps> = ({
         max="10"
         value={moodRating}
         onChange={handleMoodChange}
-        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+        className={`w-full h-2 ${darkMode ? 'bg-gray-600' : 'bg-gray-200'} rounded-lg appearance-none cursor-pointer`}
         disabled={isSubmitting}
       />
-      <div className="text-xs text-gray-500 mt-2">
+      <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'} mt-2`}>
         {moodOptions.find(option => option.value === moodRating)?.label}
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import JournalHeader from '../components/journal/JournalHeader';
 import JournalEditor from '../components/journal/JournalEditor';
@@ -11,7 +11,6 @@ import WritingPrompts from '../components/journal/WritingPrompts';
 import InsightsCard from '../components/journal/InsightsCard';
 import { TimeOfDay, Mood, JournalEntryCreate } from '@/app/types';
 
-// API URL
 const API_URL = 'https://mentalheathapp.vercel.app/journal';
 
 const JournalPage: React.FC = () => {
@@ -28,6 +27,18 @@ const JournalPage: React.FC = () => {
   const [apiError, setApiError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [editor, setEditor] = useState<{ commands: { setContent: (content: string) => void } } | null>(null);
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('darkMode');
+    if (savedTheme) {
+      setDarkMode(savedTheme === 'true');
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('darkMode', String(darkMode));
+  }, [darkMode]);
 
   const updateEntryField = (field: string, value: any) => {
     setEntry(prev => ({ ...prev, [field]: value }));
@@ -48,8 +59,6 @@ const JournalPage: React.FC = () => {
     setApiError(null);
 
     try {
-      // Create a completely new clean object with only primitive values
-      // This avoids any potential circular references
       const cleanPayload = {
         title: String(entry.title),
         content: String(entry.content),
@@ -62,8 +71,6 @@ const JournalPage: React.FC = () => {
       };
 
       const token = localStorage.getItem('token') || 'mock-token-123';
-
-      // Convert to JSON string manually before setting as body
       const jsonBody = JSON.stringify(cleanPayload);
       console.log('Clean payload:', jsonBody);
 
@@ -94,8 +101,7 @@ const JournalPage: React.FC = () => {
         });
         setSelectedMood(null);
         setMoodRating(5);
-        
-        // Safely clear editor content if available
+
         if (editor) {
           try {
             if (editor.commands && typeof editor.commands.setContent === 'function') {
@@ -120,11 +126,15 @@ const JournalPage: React.FC = () => {
   };
 
   return (
-    <main className="flex-1 p-6 lg:pl-72 space-y-6 overflow-auto bg-blue-50 min-h-screen">
-      <JournalHeader 
-        isSubmitting={isSubmitting} 
-        onSave={saveJournalEntry} 
+    <main className={`flex-1 p-6 lg:pl-72 space-y-6 overflow-auto min-h-screen transition-colors duration-300 ${
+      darkMode ? 'bg-gray-900 text-white' : 'bg-blue-50 text-black'
+    }`}>
+      <JournalHeader
+        isSubmitting={isSubmitting}
+        onSave={saveJournalEntry}
         onSaveDraft={() => saveJournalEntry(true)}
+        darkMode={darkMode}
+        toggleDarkMode={() => setDarkMode(prev => !prev)}
       />
 
       {successMessage && (
@@ -140,20 +150,23 @@ const JournalPage: React.FC = () => {
       )}
 
       <div className="flex flex-col md:flex-row gap-6">
-        <div className="w-full md:w-2/3 bg-white rounded-lg shadow p-6">
-          <JournalEditor 
+        <div className={`w-full md:w-2/3 rounded-lg shadow p-6 transition-colors duration-300 ${
+          darkMode ? 'bg-gray-800' : 'bg-white'
+        }`}>
+          <JournalEditor
             entry={entry}
             updateEntry={updateEntryField}
             setEditor={setEditor}
+            darkMode={darkMode}
           />
         </div>
 
         <div className="w-full md:w-1/3 space-y-6">
-          <MoodSelector selectedMood={selectedMood} setSelectedMood={setSelectedMood} />
-          <MoodRatingSlider moodRating={moodRating} setMoodRating={setMoodRating} isSubmitting={isSubmitting} />
-          <TagManager tags={entry.tags} updateTags={(tags: string[]) => updateEntryField('tags', tags)} />
-          <WritingPrompts editor={editor} />
-          <InsightsCard />
+          <MoodSelector selectedMood={selectedMood} setSelectedMood={setSelectedMood}  darkMode={darkMode}/>
+          <MoodRatingSlider moodRating={moodRating} setMoodRating={setMoodRating} isSubmitting={isSubmitting} darkMode={darkMode}/>
+          <TagManager tags={entry.tags} updateTags={(tags: string[]) => updateEntryField('tags', tags)} darkMode={darkMode}/>
+          <WritingPrompts editor={editor} darkMode={darkMode}/>
+          <InsightsCard darkMode={darkMode}/>
         </div>
       </div>
     </main>
