@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Calendar, Brain, BarChart2, Filter, Download, RefreshCw, Moon, Sun } from "lucide-react";
+import { useTheme } from "@/app/ThemeContext"; 
 
 // Types for our data
 type MoodData = {
@@ -348,31 +349,8 @@ export default function InsightsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [useFallbackData, setUseFallbackData] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, toggleTheme } = useTheme();
 
-  // Check for user's preferred theme on component mount
-  useEffect(() => {
-    // Check localStorage or system preference for dark mode setting
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-      setDarkMode(savedDarkMode === 'true');
-    } else {
-      // Check system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setDarkMode(prefersDark);
-    }
-  }, []);
-
-  // Handle dark mode toggle
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', newDarkMode.toString());
-    
-    // You can add any additional logic here to notify your theme provider
-    // For example, if you're using a context:
-    // yourThemeContext.setTheme(newDarkMode ? 'dark' : 'light');
-  };
 
   // Fetch insights data from API
   const fetchInsights = async (range = timeRange) => {
@@ -598,7 +576,7 @@ export default function InsightsPage() {
               
               {/* Dark Mode Toggle Button */}
               <button 
-                onClick={toggleDarkMode}
+                onClick={toggleTheme}
                 className={`p-2 rounded-full ${
                   darkMode 
                     ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' 

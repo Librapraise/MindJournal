@@ -10,10 +10,13 @@ import TagManager from '../components/journal/TagManager';
 import WritingPrompts from '../components/journal/WritingPrompts';
 import InsightsCard from '../components/journal/InsightsCard';
 import { TimeOfDay, Mood, JournalEntryCreate } from '@/app/types';
+import { useTheme } from '@/app/ThemeContext'; // Import the theme hook
 
 const API_URL = 'https://mentalheathapp.vercel.app/journal';
 
 const JournalPage: React.FC = () => {
+  const { darkMode, toggleTheme } = useTheme(); // Correctly destructure from useTheme
+
   const [entry, setEntry] = useState<Omit<JournalEntryCreate, 'mood' | 'is_draft'>>({
     title: '',
     content: '',
@@ -27,18 +30,6 @@ const JournalPage: React.FC = () => {
   const [apiError, setApiError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [editor, setEditor] = useState<{ commands: { setContent: (content: string) => void } } | null>(null);
-  const [darkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('darkMode');
-    if (savedTheme) {
-      setDarkMode(savedTheme === 'true');
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('darkMode', String(darkMode));
-  }, [darkMode]);
 
   const updateEntryField = (field: string, value: any) => {
     setEntry(prev => ({ ...prev, [field]: value }));
@@ -134,7 +125,7 @@ const JournalPage: React.FC = () => {
         onSave={saveJournalEntry}
         onSaveDraft={() => saveJournalEntry(true)}
         darkMode={darkMode}
-        toggleDarkMode={() => setDarkMode(prev => !prev)}
+        toggleDarkMode={toggleTheme} // Use toggleTheme instead of a setter function
       />
 
       {successMessage && (
@@ -162,7 +153,7 @@ const JournalPage: React.FC = () => {
         </div>
 
         <div className="w-full md:w-1/3 space-y-6">
-          <MoodSelector selectedMood={selectedMood} setSelectedMood={setSelectedMood}  darkMode={darkMode}/>
+          <MoodSelector selectedMood={selectedMood} setSelectedMood={setSelectedMood} darkMode={darkMode}/>
           <MoodRatingSlider moodRating={moodRating} setMoodRating={setMoodRating} isSubmitting={isSubmitting} darkMode={darkMode}/>
           <TagManager tags={entry.tags} updateTags={(tags: string[]) => updateEntryField('tags', tags)} darkMode={darkMode}/>
           <WritingPrompts editor={editor} darkMode={darkMode}/>

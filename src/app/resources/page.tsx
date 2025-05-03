@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { LucideIcon, Brain, Search, ArrowRight, BookOpen, Video, Headphones, Bookmark, Clock, Star, Filter, Moon, Sun } from "lucide-react";
+import { useTheme } from "@/app/ThemeContext";
 
 
 // Types for our resource data
@@ -28,36 +29,8 @@ export default function ResourcesPage() {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [savedOnly, setSavedOnly] = useState<boolean>(false);
-  const [darkMode, setDarkMode] = useState<boolean>(false);
+  const { darkMode, toggleTheme } = useTheme();
 
-  // Check for user's preferred theme on component mount
-  useEffect(() => {
-    // Check if theme is stored in localStorage
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      setDarkMode(true);
-      document.documentElement.classList.add('dark');
-    } else {
-      setDarkMode(false);
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
-  // Toggle dark mode
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    
-    // Update localStorage
-    localStorage.setItem('theme', newDarkMode ? 'dark' : 'light');
-    
-    // Update document class for styling
-    if (newDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
 
   // Sample resource data - in a real app, this would come from an API
   const resources: Resource[] = [
@@ -182,7 +155,7 @@ export default function ResourcesPage() {
         <div className="flex justify-between items-center mb-6">
           <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Mental Health Resources</h2>
           <button
-            onClick={toggleDarkMode}
+            onClick={toggleTheme}
             className={`cursor-pointer p-2 rounded-full ${darkMode ? 'bg-gray-800 text-yellow-400' : 'bg-gray-200 text-gray-700'} hover:opacity-80 transition-colors`}
             aria-label="Toggle dark mode"
           >
