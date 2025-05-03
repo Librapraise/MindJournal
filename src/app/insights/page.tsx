@@ -600,7 +600,7 @@ export default function InsightsPage() {
               {/* Dark Mode Toggle Button */}
               <button 
                 onClick={toggleTheme}
-                className={`p-2 rounded-full ${
+                className={`cursor-pointer p-2 rounded-full ${
                   darkMode 
                     ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' 
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'

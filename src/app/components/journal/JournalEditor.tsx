@@ -189,11 +189,11 @@ const JournalEditor: React.FC<JournalEditorProps> = ({ entry, updateEntry, setEd
       </div>
 
       {/* Editor */}
-      <div className={`prose max-w-none ${darkMode ? 'prose-invert' : ''}`}>
+      <div className={`w-full prose max-w-none ${darkMode ? 'prose-invert' : ''}`}>
         <EditorToolbar />
         <EditorContent 
           editor={editor} 
-          className={`min-h-[250px] border rounded-md p-4 ${
+          className={` w-full border rounded-md p-4 ${
             darkMode 
               ? 'border-gray-700 bg-gray-800 text-gray-200 focus:border-indigo-400 focus:ring-indigo-400' 
               : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'

@@ -77,7 +77,7 @@ export default function RecentEntries({ darkMode }: RecentEntriesProps) {
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h3 className={`font-bold ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Recent Entries</h3>
-        <a href="/journal" className={`text-sm ${darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'}`}>See All</a>
+        <a href="/journal-entry" className={`text-sm ${darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'}`}>See All</a>
       </div>
       
       {isLoading ? (

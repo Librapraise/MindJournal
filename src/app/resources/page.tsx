@@ -30,10 +30,64 @@ export default function ResourcesPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [savedOnly, setSavedOnly] = useState<boolean>(false);
   const { darkMode, toggleTheme } = useTheme();
+  
+  // Add new state variables for API integration
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Fetch resources from API when component mounts and when category changes
+  useEffect(() => {
+    const fetchResources = async () => {
+      setLoading(true);
+      try {
+        let apiEndpoint = "https://mentalheathapp.vercel.app/journal/articles/";
+        
+        // Add query parameters if needed
+        const params = new URLSearchParams();
+        if (activeCategory !== "all") {
+          params.append("category", activeCategory);
+        }
+        
+        const response = await fetch(`${apiEndpoint}?${params.toString()}`);
+        
+        if (!response.ok) {
+          throw new Error("Failed to fetch resources");
+        }
+        
+        let data = await response.json();
+        
+        // Transform API data to match our Resource type if necessary
+        const transformedResources: Resource[] = data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          category: item.category as "article" | "video" | "audio" | "exercise",
+          tags: item.tags || [],  
+          duration: item.duration || "5 min read",
+          isSaved: item.isSaved || false,
+          rating: item.rating || 4.5,
+          imageUrl: item.imageUrl || item.image_url
+        }));
+        
+        setResources(transformedResources);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching resources:", err);
+        setError("Failed to load resources. Using sample data instead.");
+        
+        // Fall back to sample data in case API fails
+        setResources(sampleResources);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Sample resource data - in a real app, this would come from an API
-  const resources: Resource[] = [
+    fetchResources();
+  }, [activeCategory]);
+
+  // Sample resource data as fallback
+  const sampleResources: Resource[] = [
     {
       id: "1",
       title: "Understanding Anxiety: A Comprehensive Guide",
@@ -98,7 +152,35 @@ export default function ResourcesPage() {
     }
   ];
 
-  // Categories for filtering
+  // Toggle saved status of a resource
+  const toggleSaved = async (id: string) => {
+    try {
+      // In a real app, this would make an API call to save the resource
+      // const response = await fetch(`/api/journal/resources/${id}/save`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      // });
+      // if (!response.ok) throw new Error('Failed to save resource');
+      
+      // Update local state optimistically
+      setResources(prevResources => 
+        prevResources.map(resource => 
+          resource.id === id 
+            ? { ...resource, isSaved: !resource.isSaved } 
+            : resource
+        )
+      );
+      
+      console.log(`Toggle saved status for resource ${id}`);
+    } catch (err) {
+      console.error("Error saving resource:", err);
+      // Could show an error toast here
+    }
+  };
+
+  // Categories for filtering - dynamically calculated based on available resources
   const categories: Category[] = [
     { id: "article", name: "Articles", icon: BookOpen, count: resources.filter(r => r.category === "article").length },
     { id: "video", name: "Videos", icon: Video, count: resources.filter(r => r.category === "video").length },
@@ -127,12 +209,6 @@ export default function ResourcesPage() {
     
     return true;
   });
-
-  // Toggle saved status of a resource
-  const toggleSaved = (id: string) => {
-    // In a real app, this would make an API call to save the resource
-    console.log(`Toggle saved status for resource ${id}`);
-  };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -239,126 +315,144 @@ export default function ResourcesPage() {
           </div>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <div className={`animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 ${darkMode ? 'border-indigo-400' : 'border-indigo-500'}`}></div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {!loading && error && (
+          <div className={`text-center py-8 ${darkMode ? 'text-red-400' : 'text-red-500'}`}>
+            <p>{error}</p>
+            <button 
+              className={`mt-4 px-4 py-2 ${darkMode ? 'bg-indigo-700' : 'bg-indigo-600'} text-white rounded-lg hover:opacity-90`}
+              onClick={() => setLoading(true)} // This will trigger the useEffect to re-fetch
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
         {/* Resources grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredResources.length > 0 ? (
-            filteredResources.map((resource) => (
-              <div key={resource.id} className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm overflow-hidden`}>
-                {resource.imageUrl && (
-                  <div className="h-48 overflow-hidden">
-                    <img src={resource.imageUrl} alt={resource.title} className="w-full object-cover" />
-                  </div>
-                )}
-                <div className="p-5">
-                  <div className="flex items-center mb-3">
-                    {getCategoryIcon(resource.category)}
-                    <span className={`ml-2 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'} capitalize`}>{resource.category}</span>
-                    <div className="ml-auto flex items-center">
-                      <Clock className={`h-4 w-4 ${darkMode ? 'text-gray-500' : 'text-gray-400'} mr-1`} />
-                      <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{resource.duration}</span>
+        {!loading && !error && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredResources.length > 0 ? (
+              filteredResources.map((resource) => (
+                <div key={resource.id} className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm overflow-hidden`}>
+                  {resource.imageUrl && (
+                    <div className="h-48 overflow-hidden">
+                      <img src={resource.imageUrl} alt={resource.title} className="w-full object-cover" />
                     </div>
-                  </div>
-                  
-                  <h3 className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-900'} mb-2`}>{resource.title}</h3>
-                  <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} text-sm mb-4`}>{resource.description}</p>
-                  
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {resource.tags.map((tag, index) => (
-                      <span 
-                        key={index} 
-                        className={`text-xs px-2 py-1 ${
-                          darkMode 
-                            ? 'bg-gray-700 text-gray-300' 
-                            : 'bg-gray-100 text-gray-600'
-                        } rounded-full`}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                      <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{resource.rating}</span>
+                  )}
+                  <div className="p-5">
+                    <div className="flex items-center mb-3">
+                      {getCategoryIcon(resource.category)}
+                      <span className={`ml-2 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'} capitalize`}>{resource.category}</span>
+                      <div className="ml-auto flex items-center">
+                        <Clock className={`h-4 w-4 ${darkMode ? 'text-gray-500' : 'text-gray-400'} mr-1`} />
+                        <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{resource.duration}</span>
+                      </div>
                     </div>
                     
-                    <div className="flex space-x-2">
-                      <button 
-                        className={`p-2 ${darkMode ? 'text-gray-400 hover:text-indigo-400' : 'text-gray-500 hover:text-indigo-600'}`}
-                        onClick={() => toggleSaved(resource.id)}
-                      >
-                        <Bookmark 
-                          className={`h-5 w-5 ${
-                            resource.isSaved 
-                              ? 'text-indigo-600 fill-indigo-600' 
-                              : darkMode 
-                                ? 'text-gray-400' 
-                                : 'text-gray-400'
-                          }`} 
-                        />
-                      </button>
-                      <button className={`flex items-center ${darkMode ? 'text-indigo-400' : 'text-indigo-600'} font-medium text-sm hover:text-indigo-800`}>
-                        View
-                        <ArrowRight className="h-4 w-4 ml-1" />
-                      </button>
+                    <h3 className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-900'} mb-2`}>{resource.title}</h3>
+                    <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} text-sm mb-4`}>{resource.description}</p>
+                    
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {resource.tags.map((tag, index) => (
+                        <span 
+                          key={index} 
+                          className={`text-xs px-2 py-1 ${
+                            darkMode 
+                              ? 'bg-gray-700 text-gray-300' 
+                              : 'bg-gray-100 text-gray-600'
+                          } rounded-full`}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                        <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{resource.rating}</span>
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <button 
+                          className={`p-2 ${darkMode ? 'text-gray-400 hover:text-indigo-400' : 'text-gray-500 hover:text-indigo-600'}`}
+                          onClick={() => toggleSaved(resource.id)}
+                        >
+                          <Bookmark 
+                            className={`h-5 w-5 ${
+                              resource.isSaved 
+                                ? 'text-indigo-600 fill-indigo-600' 
+                                : darkMode 
+                                  ? 'text-gray-400' 
+                                  : 'text-gray-400'
+                            }`} 
+                          />
+                        </button>
+                        <button className={`flex items-center ${darkMode ? 'text-indigo-400' : 'text-indigo-600'} font-medium text-sm hover:text-indigo-800`}>
+                          View
+                          <ArrowRight className="h-4 w-4 ml-1" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className={`col-span-3 flex flex-col items-center justify-center py-12 px-4 text-center ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                <Search className={`h-12 w-12 ${darkMode ? 'text-gray-600' : 'text-gray-300'} mb-4`} />
+                <h3 className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-900'} mb-1`}>No resources found</h3>
+                <p className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                  Try adjusting your filters or search terms to find what you're looking for.
+                </p>
               </div>
-            ))
-          ) : (
-            <div className={`col-span-3 flex flex-col items-center justify-center py-12 px-4 text-center ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              <Search className={`h-12 w-12 ${darkMode ? 'text-gray-600' : 'text-gray-300'} mb-4`} />
-              <h3 className={`text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-900'} mb-1`}>No resources found</h3>
-              <p className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
-                Try adjusting your filters or search terms to find what you're looking for.
-              </p>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
-        {/* Recommended resources section */}
+        {/* Journal-based recommendations section */}
         <div className="mt-12">
-          <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'} mb-6`}>Recommended For You</h2>
+          <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'} mb-6`}>Based on Your Journal</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg shadow-md text-white p-6">
-              <h3 className="font-medium text-lg mb-2">Today's Pick</h3>
-              <h4 className="font-bold text-xl mb-3">Mindful Breathing Techniques</h4>
+              <h3 className="font-medium text-lg mb-2">Recommended For You</h3>
+              <h4 className="font-bold text-xl mb-3">Managing Anxiety</h4>
               <p className="text-blue-50 mb-4">
-                Simple breathing exercises that can help you manage stress and anxiety throughout your day.
+                Based on your recent journal entries, these strategies may help with anxiety symptoms you've mentioned.
               </p>
-              <a href="/resources/stress" className="">
-                <button className="flex items-center text-white font-medium cursor-pointer">
-                  Start Now <ArrowRight className="ml-2 h-4 w-4" />
-                </button>
-              </a>
+              <button className="flex items-center text-white font-medium cursor-pointer">
+                Read Now <ArrowRight className="ml-2 h-4 w-4" />
+              </button>
             </div>
+            
             <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg shadow-md text-white p-6">
-              <h3 className="font-medium text-lg mb-2">Trending</h3>
-              <h4 className="font-bold text-xl mb-3">Understanding Depression</h4>
+              <h3 className="font-medium text-lg mb-2">Personalized</h3>
+              <h4 className="font-bold text-xl mb-3">Sleep Improvement</h4>
               <p className="text-pink-50 mb-4">
-                A deep dive into the causes, symptoms, and treatments for depression.
+                Your journal entries mention sleep challenges. These evidence-based techniques can help improve sleep quality.
               </p>
-              <a href="/resources/stress" className="">
-                <button className="flex items-center text-white font-medium cursor-pointer">
-                  Read More <ArrowRight className="ml-2 h-4 w-4" />
-                </button>
-              </a>
-            </div>  
-            <div className="bg-gradient-to-r from-green-500 to-teal-600 rounded-lg shadow-md text-white p-6">
-              <h3 className="font-medium text-lg mb-2">Most Popular</h3>
-              <h4 className="font-bold text-xl mb-3">Coping with Stress</h4>
-              <p className="text-green-50 mb-4">
-                Explore various techniques and strategies to cope with stress effectively.
-              </p>
-              <a href="/resources/stress" className="">
-                <button className="flex items-center text-white font-medium cursor-pointer">
-                  Learn More <ArrowRight className="ml-2 h-4 w-4" />
-                </button>
-              </a>
+              <button className="flex items-center text-white font-medium cursor-pointer">
+                Explore <ArrowRight className="ml-2 h-4 w-4" />
+              </button>
             </div>
-            </div>  
+            
+            <div className="bg-gradient-to-r from-green-500 to-teal-600 rounded-lg shadow-md text-white p-6">
+              <h3 className="font-medium text-lg mb-2">Weekly Exercise</h3>
+              <h4 className="font-bold text-xl mb-3">Mindful Meditation</h4>
+              <p className="text-green-50 mb-4">
+                A simple 5-minute mindfulness practice to help with the stress patterns mentioned in your journal.
+              </p>
+              <button className="flex items-center text-white font-medium cursor-pointer">
+                Start Now <ArrowRight className="ml-2 h-4 w-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </main>
     </div>

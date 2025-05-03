@@ -29,12 +29,12 @@ const JournalHeader: React.FC<JournalHeaderProps> = ({
       <div className="flex items-center space-x-2">
         <button
           onClick={handleToggleDarkMode}
-          className={`cursor-pointer p-2 rounded-full border ${
-            darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-800 border-gray-300'
-          } hover:bg-gray-100 dark:hover:bg-gray-700 transition`}
+          className={`cursor-pointer p-2 rounded-full ${
+            darkMode ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-800'
+          } hover:bg-gray-300 dark:hover:bg-gray-600 transition`}
           aria-label={`Switch to ${darkMode ? 'light' : 'dark'} mode`}
         >
-          {darkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-blue-600" />}
+          {darkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-gray-800" />}
         </button>
 
         <button
