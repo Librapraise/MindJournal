@@ -245,20 +245,43 @@ const transformApiResponse = (apiData: ApiResponse) => {
     }
   }
 
-  // Process theme data
+// Process theme data
   if (apiData.theme_cloud_30d?.data) {
-    insightsData.themes = apiData.theme_cloud_30d.data.map(theme => ({
+    // Get raw themes
+    let themeData = apiData.theme_cloud_30d.data.map(theme => ({
       name: theme.theme,
       value: theme.frequency || theme.count || 0 // Use frequency if available, otherwise count
     }));
     
     // Normalize theme percentages
-    const totalThemeValue = insightsData.themes.reduce((sum, theme) => sum + theme.value, 0);
+    const totalThemeValue = themeData.reduce((sum, theme) => sum + theme.value, 0);
     if (totalThemeValue > 0) {
-      insightsData.themes = insightsData.themes.map(theme => ({
+      themeData = themeData.map(theme => ({
         ...theme,
         value: Math.round((theme.value / totalThemeValue) * 100)
       }));
+    }
+    
+    // Sort themes by value (descending)
+    themeData.sort((a, b) => b.value - a.value);
+    
+    // Keep only top 4 themes and group the rest as "Other"
+    if (themeData.length > 4) {
+      const topThemes = themeData.slice(0, 4);
+      const otherThemes = themeData.slice(4);
+      
+      const otherValue = otherThemes.reduce((sum, theme) => sum + theme.value, 0);
+      
+      if (otherValue > 0) {
+        topThemes.push({
+          name: "Other",
+          value: otherValue
+        });
+      }
+      
+      insightsData.themes = topThemes;
+    } else {
+      insightsData.themes = themeData;
     }
   }
 
@@ -704,7 +727,7 @@ export default function InsightsPage() {
                 <h3 className={`text-lg font-medium mb-4 ${darkMode ? 'text-gray-100' : 'text-gray-900'} transition-colors duration-200`}>
                   <div className="flex items-center">
                     <Brain className="h-5 w-5 mr-2" />
-                    Common Themes
+                    Related Themes
                   </div>
                 </h3>
                 {processedThemeData.length > 0 ? (
