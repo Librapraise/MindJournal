@@ -13,7 +13,8 @@ import {
   Brain,
   LogOut,
   Moon,
-  Sun
+  Sun,
+  MessageCircle // Added for chat
 } from 'lucide-react';
 import axios from 'axios';
 import { useTheme } from '@/app/ThemeContext'; // Import our theme hook
@@ -103,6 +104,7 @@ const Sidebar = () => {
   const navItems: NavItem[] = [
     { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard size={20} /> },
     { name: "Journal", path: "/journal", icon: <Book size={20} /> },
+    { name: "Chat with MINDAI", path: "/chat", icon: <MessageCircle size={20} /> }, // Added chat link
     { name: "Insights", path: "/insights", icon: <PieChart size={20} /> },
     { name: "Resources", path: "/resources", icon: <FileQuestion size={20} /> },
     { name: "Settings", path: "/settings", icon: <Settings size={20} /> }
