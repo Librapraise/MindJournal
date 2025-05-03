@@ -129,16 +129,16 @@ export default function ChatbotUI() {
   };
   
   return (
-    <div className={`flex flex-col h-screen ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
+    <div className={`flex flex-col h-screen ${darkMode ? 'bg-gray-800' : 'bg-gray-100'} `}>
       {/* Top Bar */}
       <div className={`${darkMode ? 'bg-gray-900 text-white' : 'bg-white'} p-4 flex items-center justify-between shadow-sm`}>
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center mt-10 lg:mt-0">
           <Bot className={`h-6 w-6 ${darkMode ? 'text-blue-400' : 'text-blue-500'} mr-2`} />
           <h2 className={`font-semibold ${darkMode ? 'text-blue-400' : 'text-blue-500'}`}>MINDAI</h2>
         </div>
         <button 
           onClick={clearChat}
-          className={`cursor-pointer text-sm ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-500 hover:text-gray-700'}`}
+          className={`mt-10 lg:mt-0 cursor-pointer text-sm ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-500 hover:text-gray-700'}`}
         >
           Clear Chat
         </button>

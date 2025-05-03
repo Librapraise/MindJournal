@@ -549,12 +549,12 @@ export default function InsightsPage() {
     <div className={`${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-blue-50 text-gray-900'} min-h-screen transition-colors duration-200`}>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:pl-64">
         <div className="flex justify-between items-center mb-6">
-          <h2 className={`text-2xl font-bold ${darkMode ? 'text-gray-100' : 'text-gray-900'} transition-colors duration-200`}>Your Insights</h2>
+          <h2 className={`text-xl font-bold ${darkMode ? 'text-gray-100' : 'text-gray-900'} transition-colors duration-200`}>Your Insights</h2>
           <div className="flex flex-col items-center mt-4 md:flex-row md:space-x-4 space-y-2 md:space-y-0">
             <div className="flex items-center space-x-2">
               <div className={`flex items-center border ${darkMode ? 'border-gray-700' : 'border-gray-200'} rounded-lg overflow-hidden transition-colors duration-200`}>
                 <button 
-                  className={`cursor-pointer px-3 py-1 text-sm ${
+                  className={`cursor-pointer px-3 py-1 text-[11px] lg:text-sm ${
                     timeRange === 'week' 
                       ? darkMode 
                         ? 'bg-indigo-800 text-indigo-200' 
@@ -568,7 +568,7 @@ export default function InsightsPage() {
                   Week
                 </button>
                 <button 
-                  className={`cursor-pointer px-3 py-1 text-sm ${
+                  className={`cursor-pointer px-3 py-1 text-[11px] lg:text-sm ${
                     timeRange === 'month' 
                       ? darkMode 
                         ? 'bg-indigo-800 text-indigo-200' 
@@ -582,7 +582,7 @@ export default function InsightsPage() {
                   Month
                 </button>
                 <button 
-                  className={`cursor-pointer px-3 py-1 text-sm ${
+                  className={`cursor-pointer px-3 py-1 text-[11px] lg:text-sm ${
                     timeRange === 'year' 
                       ? darkMode 
                         ? 'bg-indigo-800 text-indigo-200' 
@@ -613,7 +613,7 @@ export default function InsightsPage() {
             
             <div className="flex items-center space-x-3">
               <button 
-                className={`cursor-pointer flex items-center text-sm ${
+                className={`cursor-pointer flex items-center text-[11px] lg:text-sm ${
                   darkMode 
                     ? 'text-indigo-400 hover:text-indigo-300' 
                     : 'text-indigo-600 hover:text-indigo-800'
@@ -624,7 +624,7 @@ export default function InsightsPage() {
                 Refresh
               </button>
               <button 
-                className={`cursor-pointer flex items-center text-sm ${
+                className={`cursor-pointer flex items-center text-[11px] lg:text-sm ${
                   darkMode 
                     ? 'text-indigo-400 hover:text-indigo-300' 
                     : 'text-indigo-600 hover:text-indigo-800'

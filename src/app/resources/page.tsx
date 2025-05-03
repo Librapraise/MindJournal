@@ -228,7 +228,7 @@ export default function ResourcesPage() {
   return (
     <div className={`${darkMode ? 'bg-gray-900' : 'bg-blue-50'} min-h-screen`}>
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:pl-64">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-6 mt-6 lg:mt-0">
           <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Mental Health Resources</h2>
           <button
             onClick={toggleTheme}

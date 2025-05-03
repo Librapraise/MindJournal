@@ -26,11 +26,11 @@ export default function DashboardPage() {
       ${darkMode ? 'bg-gray-900 text-gray-200' : 'bg-blue-50 text-gray-700'}
     `}>
       {/* Header Actions */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mt-6 lg:mt-0">
         <h1 className={`text-xl md:text-2xl font-bold ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
           Dashboard
         </h1>
-        <div className="flex space-x-3 items-center">
+        <div className="flex space-x-1 items-center">
           {/* Dark Mode Toggle Button */}
           <button
             onClick={toggleTheme}

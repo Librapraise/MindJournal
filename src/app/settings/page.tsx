@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTheme } from "@/app/ThemeContext"; // Import the theme hook
 import {
   User,
   Bell,
@@ -22,17 +23,17 @@ interface ProfileState {
   name: string;
   email: string;
   notificationEnabled: boolean;
-  darkModeEnabled: boolean;
   journalReminders: boolean;
   passwordChange: PasswordChange;
 }
 
 export default function Settings() {
+  const { darkMode, toggleTheme } = useTheme(); // Get theme state and toggle function
+  
   const [profile, setProfile] = useState<ProfileState>({
     name: "",
     email: "",
     notificationEnabled: true,
-    darkModeEnabled: false,
     journalReminders: true,
     passwordChange: {
       currentPassword: "",
@@ -44,18 +45,6 @@ export default function Settings() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
-  // Load dark mode preference on first render
-  useEffect(() => {
-    const darkModeFromStorage = typeof window !== "undefined"
-      ? localStorage.getItem("darkMode") === "true"
-      : false;
-
-    setProfile((prev) => ({
-      ...prev,
-      darkModeEnabled: darkModeFromStorage,
-    }));
-  }, []);
 
   // Fetch user profile from the API
   useEffect(() => {
@@ -128,19 +117,6 @@ export default function Settings() {
 
     fetchUserProfile();
   }, []);
-
-  // Sync dark mode class and localStorage
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    if (profile.darkModeEnabled) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("darkMode", "true");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("darkMode", "false");
-    }
-  }, [profile.darkModeEnabled]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -328,10 +304,30 @@ export default function Settings() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:pl-64">
-      <h1 className="text-3xl font-bold mb-8 text-center text-gray-800 dark:text-white">
-        Account Settings
-      </h1>
+    <div className={`
+      max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:pl-72 
+      min-h-screen transition-colors duration-200
+      ${darkMode ? 'bg-gray-900 text-gray-200' : 'bg-blue-50 text-gray-700'}
+    `}>
+      {/* Header with title and dark mode toggle */}
+      <div className="flex justify-between items-center mb-8 mt-6 lg:mt-0">
+        <h1 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+          Account Settings
+        </h1>
+        
+        {/* Dark Mode Toggle Button */}
+        <button
+          onClick={toggleTheme}
+          className={`flex items-center justify-center cursor-pointer rounded-full w-10 h-10 ${
+            darkMode 
+              ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600' 
+              : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+          }`}
+          aria-label="Toggle dark mode"
+        >
+          {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+      </div>
 
       {isLoading && !errorMessage && !successMessage && (
         <div className="mb-6 p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded flex items-center justify-center">
@@ -357,19 +353,21 @@ export default function Settings() {
       {/* Profile Form */}
       <form
         onSubmit={handleUpdateProfile}
-        className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden mb-8"
+        className={`shadow rounded-lg overflow-hidden mb-8 ${
+          darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+        }`}
       >
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center mb-4">
             <User className="text-blue-500 mr-2" size={24} />
-            <h2 className="text-xl font-semibold dark:text-white">
+            <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
               Profile Information
             </h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className={`block text-sm font-medium mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                 Full Name
               </label>
               <input
@@ -377,21 +375,29 @@ export default function Settings() {
                 name="name"
                 value={profile.name}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+                className={`w-full px-3 py-2 border rounded-md ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white' 
+                    : 'border-gray-300 text-gray-900'
+                }`}
                 placeholder="Your name"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className={`block text-sm font-medium mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                 Email Address
               </label>
               <input
                 type="email"
                 value={profile.email}
                 disabled
-                className="w-full px-3 py-2 border border-gray-300 bg-gray-100 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-300 rounded-md cursor-not-allowed"
+                className={`w-full px-3 py-2 border rounded-md cursor-not-allowed ${
+                  darkMode 
+                    ? 'bg-gray-600 border-gray-500 text-gray-300' 
+                    : 'bg-gray-100 border-gray-300 text-gray-500'
+                }`}
               />
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 Contact support to change email
               </p>
             </div>
@@ -400,7 +406,9 @@ export default function Settings() {
           <button
             type="submit"
             disabled={isLoading}
-            className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center"
+            className={`mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center ${
+              darkMode ? 'hover:bg-blue-800' : 'hover:bg-blue-700'
+            }`}
           >
             {isLoading ? "Saving..." : <><Save size={16} className="mr-2" />Save Profile</>}
           </button>
@@ -410,12 +418,14 @@ export default function Settings() {
       {/* Password Form */}
       <form
         onSubmit={handlePasswordChange}
-        className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden mb-8"
+        className={`shadow rounded-lg overflow-hidden mb-8 ${
+          darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+        }`}
       >
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center mb-4">
             <Lock className="text-blue-500 mr-2" size={24} />
-            <h2 className="text-xl font-semibold dark:text-white">
+            <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
               Change Password
             </h2>
           </div>
@@ -425,7 +435,7 @@ export default function Settings() {
               const field = ["currentPassword", "newPassword", "confirmPassword"][i];
               return (
                 <div key={field}>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className={`block text-sm font-medium mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     {label} Password
                   </label>
                   <input
@@ -433,7 +443,11 @@ export default function Settings() {
                     name={`passwordChange.${field}`}
                     value={(profile.passwordChange as any)[field]}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"
+                    className={`w-full px-3 py-2 border rounded-md ${
+                      darkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'border-gray-300 text-gray-900'
+                    }`}
                     placeholder="••••••••"
                   />
                 </div>
@@ -444,7 +458,9 @@ export default function Settings() {
           <button
             type="submit"
             disabled={isLoading}
-            className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center"
+            className={`mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center ${
+              darkMode ? 'hover:bg-blue-800' : 'hover:bg-blue-700'
+            }`}
           >
             {isLoading ? "Updating..." : <><Lock size={16} className="mr-2" />Update Password</>}
           </button>
@@ -454,12 +470,16 @@ export default function Settings() {
       {/* Preferences */}
       <form
         onSubmit={handleUpdateProfile}
-        className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden mb-8"
+        className={`shadow rounded-lg overflow-hidden mb-8 ${
+          darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+        }`}
       >
         <div className="p-6">
           <div className="flex items-center mb-4">
             <Bell className="text-blue-500 mr-2" size={24} />
-            <h2 className="text-xl font-semibold dark:text-white">Preferences</h2>
+            <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+              Preferences
+            </h2>
           </div>
 
           {[
@@ -476,10 +496,10 @@ export default function Settings() {
           ].map(({ name, label, desc }) => (
             <div key={name} className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-medium text-gray-800 dark:text-white">
+                <h3 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                   {label}
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   {desc}
                 </p>
               </div>
@@ -491,7 +511,11 @@ export default function Settings() {
                   onChange={handleInputChange}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                <div className={`w-11 h-6 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full ${
+                  darkMode 
+                    ? 'bg-gray-700 peer-checked:bg-blue-600' 
+                    : 'bg-gray-200 peer-checked:bg-blue-600'
+                }`}></div>
               </label>
             </div>
           ))}
@@ -499,7 +523,9 @@ export default function Settings() {
           <button
             type="submit"
             disabled={isLoading}
-            className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center"
+            className={`mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center ${
+              darkMode ? 'hover:bg-blue-800' : 'hover:bg-blue-700'
+            }`}
           >
             {isLoading ? "Saving..." : <><Save size={16} className="mr-2" />Save Preferences</>}
           </button>
@@ -518,4 +544,4 @@ export default function Settings() {
       </div>
     </div>
   );
-} 
+}

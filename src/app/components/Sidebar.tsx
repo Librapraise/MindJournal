@@ -132,7 +132,7 @@ const Sidebar = () => {
       {/* Mobile Menu Toggle */}
       <button
         onClick={toggleMobileMenu}
-        className={`fixed top-4 left-4 p-2 rounded-md ${darkMode ? 'bg-gray-800 text-blue-400' : 'bg-blue-100 text-blue-600'} lg:hidden z-50`}
+        className={` ${isMobileOpen ? "left-52" : "left-4"} fixed top-4 p-2 rounded-md ${darkMode ? 'bg-gray-800 text-blue-400' : 'bg-blue-100 text-blue-600'} lg:hidden z-50`}
         aria-label="Toggle menu"
       >
         {isMobileOpen ? <X size={20} /> : <Menu size={20} />}

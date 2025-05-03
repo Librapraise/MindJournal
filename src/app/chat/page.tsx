@@ -18,7 +18,7 @@ export default function ChatPage() {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Main content area with proper padding for sidebar */}
-      <div className="flex-1 lg:ml-64 md:ml-16">
+      <div className="flex-1 lg:ml-64 md:ml-16 ">
         <ChatbotUI />
       </div>
     </div>

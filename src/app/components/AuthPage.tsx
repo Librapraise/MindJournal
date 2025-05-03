@@ -320,7 +320,7 @@ export default function AuthPage() {
           </div>
           */}
 
-          {/* Forgot Password */}
+          {/* Forgot Password
           {isLogin && (
             <div className="text-center mt-4">
               <a href="#" className="text-blue-500 text-sm hover:underline">
@@ -328,6 +328,7 @@ export default function AuthPage() {
               </a>
             </div>
           )}
+          */}
         </div>
       </div>
     </div>
