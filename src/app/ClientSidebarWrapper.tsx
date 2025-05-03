@@ -12,9 +12,7 @@ export default function ClientSidebarWrapper() {
   if (isAuthPage) return null;
   
   return (
-    <ThemeProvider>
-      <Sidebar />
-    </ThemeProvider>
+    <Sidebar />
   );
 
 }
