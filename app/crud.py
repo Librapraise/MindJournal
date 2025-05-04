@@ -146,3 +146,84 @@ def get_theme_frequency(db: Session, user_id: uuid.UUID, days: int) -> List[sche
 
     # 4. Format the output
     return [schemas.ThemeCloudItem(theme=theme, count=count) for theme, count in top_themes]
+
+def create_article(db: Session, *, article_in: schemas.ArticleCreate) -> models.Article:
+    """
+    Creates a new article record in the database.
+    """
+    # Ensure all required fields from ArticleCreate are used
+    db_article = models.Article(
+        user_id=article_in.user_id,
+        title=article_in.title,
+        body=article_in.body,
+        triggering_mood=article_in.triggering_mood, # Pass required mood
+        source_journal_entry_id=article_in.source_journal_entry_id,
+        generation_variation_key=article_in.generation_variation_key
+        # generated_at is handled by default in the model
+    )
+    db.add(db_article)
+    # We commit within the background task loop after adding, or commit once at the end
+    # Let's adjust the background task to commit once after the loop for efficiency
+    # So, remove commit here for now. The caller (background task) will handle commit.
+    # db.commit()
+    # db.refresh(db_article) # Refresh also depends on commit
+    return db_article # Return the object before commit/refresh
+
+def get_article(db: Session, article_id: int, user_id: uuid.UUID) -> Optional[models.Article]:
+    """ Gets a specific article only if it belongs to the user. """
+    return db.query(models.Article).filter(
+        models.Article.id == article_id,
+        models.Article.user_id == user_id
+    ).first()
+
+def get_user_articles(
+    db: Session, user_id: uuid.UUID, skip: int = 0, limit: int = 20
+) -> List[models.Article]:
+    """ Gets articles for a specific user with pagination, newest first. """
+    return db.query(models.Article)\
+             .filter(models.Article.user_id == user_id)\
+             .order_by(models.Article.generated_at.desc())\
+             .offset(skip)\
+             .limit(limit)\
+             .all()
+
+def delete_article(db: Session, article_id: int, user_id: uuid.UUID) -> Optional[models.Article]:
+    """ Deletes a specific article if it belongs to the user. """
+    db_article = get_article(db, article_id=article_id, user_id=user_id)
+    if db_article:
+        db.delete(db_article)
+        db.commit() # Commit deletion immediately
+        return db_article
+    return None
+
+
+def create_articles_bulk(
+    db: Session,
+    *,
+    articles_to_create: List[schemas.ArticleCreate]
+) -> List[models.Article]:
+    """
+    Creates multiple new article records in the database in a single transaction,
+    stamps them all with the same `generated_at`, commits, and returns them
+    with all DB-populated fields.
+    """
+    if not articles_to_create:
+        return []
+
+    now = datetime.utcnow()
+    # Build model instances, embedding `generated_at`
+    db_models = [
+        models.Article(**article.model_dump(), generated_at=now)
+        for article in articles_to_create
+    ]
+
+    try:
+        db.add_all(db_models)
+        db.commit()
+        for obj in db_models:
+            db.refresh(obj)
+        return db_models
+
+    except Exception:
+        db.rollback()
+        raise

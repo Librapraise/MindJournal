@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str
     GOOGLE_API_KEY: str = ""
     DEFAULT_LLM_PROVIDER: str = "gemini"  # or "openai"
-    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"] # Default if not in .env
+    ALLOWED_ORIGINS: List[str] = ["*"] # Default if not in .env
 
     class Config:
         env_file = ".env"

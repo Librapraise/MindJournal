@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, List
+from typing import Optional, List,Literal
 from datetime import datetime
 import uuid
 
@@ -95,3 +95,77 @@ class ChatMessage(BaseModel):
 class ChatResponse(BaseModel):
     response: str
     error: Optional[str] = None
+
+class GeneratedArticle(BaseModel):
+    """Defines the structure for the generated article."""
+    title: str = Field(description="A concise and engaging title for the article, relevant to the mood.")
+    body: str = Field(description="The main content of the article, following the guidelines provided in the prompt (validation, perspective/strategies, tone, length, disclaimer).")
+    
+class LLMGeneratedArticle(BaseModel):
+    """Defines the structure expected from the LLM for a single article."""
+    title: str = Field(description="A concise and engaging title for the article, relevant to the mood and variation focus.")
+    body: str = Field(description="The main content of the article, following the guidelines, mood, and variation focus.")
+
+# Base schema for Article data (common fields)
+class ArticleBase(BaseModel):
+    title: str
+    body: str
+    triggering_mood: Optional[str] = None
+    generation_variation_key: Optional[str] = None
+
+# Schema for creating an Article in the DB (used by CRUD)
+class ArticleCreate(ArticleBase):
+    user_id: uuid.UUID
+    source_journal_entry_id: Optional[int] = None
+    triggering_mood: str # Make required during creation
+
+# Schema for reading/returning an Article from the DB
+class Article(ArticleBase):
+    id: int
+    user_id: uuid.UUID
+    generated_at: datetime
+    source_journal_entry_id: Optional[int] = None
+    triggering_mood: str # Should be present when reading
+
+    class Config:
+        from_attributes = True
+
+class EntryAccepted(BaseModel):
+    entry_id: int = Field(..., description="The newly created journal entry’s ID")
+    status_url: str = Field(
+        ..., 
+        description="URL where the client can check analysis status"
+    )
+
+    class Config:
+        orm_mode = True
+        
+
+class EntryStatus(BaseModel):
+    status: Literal["pending", "complete"] = Field(
+        ..., 
+        description="pending’ until AI analysis finishes, then ‘complete’"
+    )
+    sentiment_label: Optional[str] = Field(
+        None, 
+        description="AI‐derived sentiment (once complete)"
+    )
+    sentiment_score: Optional[float] = Field(
+        None, 
+        description="AI‐derived sentiment score (once complete)"
+    )
+    key_themes: Optional[List[str]] = Field(
+        None, 
+        description="Top themes extracted by AI"
+    )
+    suggested_strategies: Optional[List[str]] = Field(
+        None, 
+        description="AI‐suggested coping strategies"
+    )
+    ai_analysis_completed_at: Optional[datetime] = Field(
+        None, 
+        description="Timestamp when AI finished"
+    )
+
+    class Config:
+        orm_mode = True

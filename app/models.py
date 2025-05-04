@@ -16,6 +16,8 @@ class User(Base):
     is_active = Column(Boolean, default=True) # Optional: for soft deletes or activation
 
     journal_entries = relationship("JournalEntry", back_populates="owner", cascade="all, delete-orphan")
+    # Add this line:
+    articles = relationship("Article", back_populates="owner", cascade="all, delete-orphan") 
 
 class JournalEntry(Base):
     __tablename__ = "journal_entries"
@@ -35,5 +37,26 @@ class JournalEntry(Base):
     ai_analysis_completed_at = Column(DateTime(timezone=True), nullable=True)
 
     owner = relationship("User", back_populates="journal_entries")
+    
+    
+
+class Article(Base):
+    __tablename__ = "articles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    # Ensure UUID type matches your User model's ID type exactly
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    title = Column(String, nullable=False)
+    body = Column(Text, nullable=False)
+    triggering_mood = Column(String, index=True, nullable=False) # Made non-nullable
+    source_journal_entry_id = Column(Integer, ForeignKey("journal_entries.id", ondelete="SET NULL"), nullable=True, index=True) # Link to triggering entry, set null if entry deleted
+    generation_variation_key = Column(String, nullable=True) # Identifier for which variation this is
+    generated_at = Column(DateTime(timezone=True), nullable=True)
+
+    # Relationships
+    # Link to User model
+    owner = relationship("User", back_populates="articles")
+    # Link to JournalEntry model (optional, if needed)
+    source_entry = relationship("JournalEntry") # No back_populates unless JournalEntry needs article list
 
 # You might add more models later, e.g., for Prompts, Settings etc.
