@@ -11,7 +11,7 @@ import {
 
 interface JournalEditorProps {
   entry: {
-    title: string;
+    mood: string;
     content: string;
     date: string;
     time_of_day: TimeOfDay;
@@ -177,7 +177,7 @@ const JournalEditor: React.FC<JournalEditorProps> = ({ entry, updateEntry, setEd
         <input
           type="text"
           id="title"
-          value={entry.title}
+          value={entry.mood}
           onChange={(e) => updateEntry('title', e.target.value)}
           placeholder="How I'm feeling today..."
           className={`mt-1 block w-full border rounded-md p-2 sm:text-sm ${

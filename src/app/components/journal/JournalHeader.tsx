@@ -40,7 +40,7 @@ const JournalHeader: React.FC<JournalHeaderProps> = ({
         <button
           onClick={onSaveDraft}
           disabled={isSubmitting}
-          className={`cursor-pointer px-2 py-2 rounded-md text-[12px] font-medium border 
+          className={`cursor-pointer px-2 py-2 rounded-md text-[12px] font-medium border md:text-sm 
             ${darkMode 
               ? 'bg-gray-700 text-blue-200 border-blue-400 hover:bg-gray-600' 
               : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-50'

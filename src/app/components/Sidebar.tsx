@@ -68,8 +68,8 @@ const Sidebar = () => {
         const response = await authAxios.get('/me');
         const userData = response.data;
 
-        const fullName = userData.full_name || 'User';
-        const initials = fullName
+        const firstName = userData.first_name || 'User';
+        const initials = firstName
           .split(' ')
           .map((n: string) => n[0])
           .join('')
@@ -77,7 +77,7 @@ const Sidebar = () => {
           .toUpperCase();
 
         setUser({
-          name: fullName,
+          name: firstName,
           email: userData.email || '',
           initials
         });

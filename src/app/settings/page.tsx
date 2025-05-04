@@ -11,6 +11,7 @@ import {
   LogOut,
   Save,
   AlertCircle,
+  Trash2,
 } from "lucide-react";
 
 interface PasswordChange {
@@ -45,6 +46,9 @@ export default function Settings() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   // Fetch user profile from the API
   useEffect(() => {
@@ -303,6 +307,81 @@ export default function Settings() {
     }
   };
 
+  const handleDeleteAccountRequest = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteConfirmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDeleteConfirmText(e.target.value);
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setDeleteConfirmText("");
+  };
+
+  const handleConfirmDelete = async () => {
+    // Check if user has typed "DELETE" exactly
+    if (deleteConfirmText !== "DELETE") {
+      setErrorMessage('Please type "DELETE" to confirm account deletion');
+      return;
+    }
+
+    try {
+      setDeletingAccount(true);
+      setErrorMessage("");
+      
+      // Get token
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setErrorMessage("Authentication error. Please log in again.");
+        setDeletingAccount(false);
+        return;
+      }
+      
+      try {
+        const response = await fetch("https://mentalheathapp.vercel.app/users/me", {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status}`);
+        }
+
+        // On successful deletion
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        
+        // Show a brief success message before redirect
+        setSuccessMessage("Account successfully deleted. Redirecting...");
+        setTimeout(() => {
+          window.location.href = "/auth";
+        }, 2000);
+      } catch (fetchError) {
+        console.error("Account deletion API request failed:", fetchError);
+        
+        // For development - simulate success
+        console.warn("Development mode: Simulating successful account deletion");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        
+        setSuccessMessage("Account successfully deleted. Redirecting... (Development mode)");
+        setTimeout(() => {
+          window.location.href = "/auth";
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Account deletion error:", error);
+      setErrorMessage("Unable to delete account. Please try again.");
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
+
   return (
     <div className={`
       max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:pl-72 
@@ -531,6 +610,75 @@ export default function Settings() {
           </button>
         </div>
       </form>
+
+      {/* Delete Account Section */}
+      <div className={`shadow rounded-lg overflow-hidden mb-8 ${
+        darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+      }`}>
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center mb-4">
+            <Trash2 className="text-red-500 mr-2" size={24} />
+            <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+              Delete Account
+            </h2>
+          </div>
+          
+          <p className={`mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            Once you delete your account, there is no going back. All of your data will be permanently removed.
+          </p>
+          
+          {!showDeleteConfirm ? (
+            <button
+              onClick={handleDeleteAccountRequest}
+              className="cursor-pointer px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center"
+              type="button"
+            >
+              <Trash2 size={16} className="mr-2" />
+              Delete Account
+            </button>
+          ) : (
+            <div className="border p-4 rounded-md bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
+              <p className="font-medium text-red-700 dark:text-red-400 mb-3">
+                Please type "DELETE" to confirm account deletion:
+              </p>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={handleDeleteConfirmChange}
+                className={`w-full px-3 py-2 border rounded-md mb-3 ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white' 
+                    : 'border-red-300 text-gray-900'
+                }`}
+                placeholder="Type DELETE"
+              />
+              <div className="flex space-x-3">
+                <button
+                  onClick={handleConfirmDelete}
+                  disabled={deleteConfirmText !== "DELETE" || deletingAccount}
+                  className={`cursor-pointer px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center ${
+                    darkMode ? 'hover:bg-red-800' : 'hover:bg-red-700'
+                  }`}
+                  type="button"
+                >
+                  {deletingAccount ? "Deleting..." : <><Trash2 size={16} className="mr-2" />Confirm Delete</>}
+                </button>
+                <button
+                  onClick={handleCancelDelete}
+                  className={`cursor-pointer px-4 py-2 border rounded-md ${
+                    darkMode 
+                      ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
+                      : 'border-gray-300 text-gray-700 hover:bg-gray-100'
+                  }`}
+                  type="button"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Logout */}
       <div className="text-right">

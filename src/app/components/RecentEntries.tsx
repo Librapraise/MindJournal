@@ -7,7 +7,7 @@ interface JournalEntry {
   id: number;
   created_at: string; // API returns created_at, not date
   content: string; // Full content instead of snippet
-  title: string; // Title from journal page
+  mood: string; // Title from journal page
   sentiment_score?: number; // For mood indication
   sentiment_label?: string; // For mood emoji
 }
@@ -122,7 +122,7 @@ export default function RecentEntries({ darkMode }: RecentEntriesProps) {
                 <h4 className={`font-bold ${
                   darkMode ? 'text-gray-200' : 'text-gray-800'
                 }`}>
-                  {entry.title || new Date(entry.created_at).toLocaleDateString()}
+                  {entry.mood || new Date(entry.created_at).toLocaleDateString()}
                 </h4>
                 <p className={`text-sm mt-1 ${
                   darkMode ? 'text-gray-400' : 'text-gray-600'
