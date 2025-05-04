@@ -91,12 +91,14 @@ export default function MoodHistoryList({ darkMode }: MoodHistoryListProps) {
     cardBackground: darkMode ? 'bg-gray-700' : 'bg-gray-50',
     text: darkMode ? 'text-gray-200' : 'text-gray-700',
     secondaryText: darkMode ? 'text-gray-400' : 'text-gray-600',
-    borderColor: darkMode ? 'border-gray-700' : 'border-gray-400',
+    borderColor: darkMode ? 'border-gray-700' : 'border-gray-200',
     selectBackground: darkMode ? 'bg-gray-700' : 'bg-white',
     errorText: darkMode ? 'text-red-400' : 'text-red-500',
     loadingText: darkMode ? 'text-gray-500' : 'text-gray-400',
     shadow: darkMode ? 'shadow-lg shadow-gray-900/20' : 'shadow-md',
-    dateText: darkMode ? 'text-gray-300' : 'text-gray-600'
+    dateText: darkMode ? 'text-gray-300' : 'text-gray-600',
+    scrollbarThumb: darkMode ? 'bg-gray-600' : 'bg-gray-300',
+    scrollbarTrack: darkMode ? 'bg-gray-800' : 'bg-gray-100'
   };
 
   // Get color class based on mood with dark mode support
@@ -130,9 +132,24 @@ export default function MoodHistoryList({ darkMode }: MoodHistoryListProps) {
     }
   };
 
+  // Render a single mood item
+  const renderMoodItem = (item: MoodDataPoint, index: number) => (
+    <div 
+      key={index} 
+      className={`flex justify-between items-center p-3 rounded-lg ${colors.cardBackground} mb-2 hover:opacity-90 transition-opacity`}
+    >
+      <div className="flex items-center">
+        <span className={colors.dateText}>{formatDate(item.date)}</span>
+      </div>
+      <div className={`px-3 py-1 rounded-full ${getMoodColorClass(item.mood)}`}>
+        {item.mood}
+      </div>
+    </div>
+  );
+
   return (
     <div className={`${colors.background} p-6 rounded-xl ${colors.shadow} space-y-4`}>
-      {/* Title */}
+      {/* Title and Filter */}
       <div className="flex justify-between items-center">
         <h2 className={`text-lg font-semibold ${colors.text}`}>Recent Moods</h2>
         <select 
@@ -147,7 +164,7 @@ export default function MoodHistoryList({ darkMode }: MoodHistoryListProps) {
       </div>
 
       {/* Mood History List */}
-      <div className="space-y-2">
+      <div>
         {isLoading ? (
           <div className={`py-6 flex items-center justify-center ${colors.loadingText}`}>
             Loading mood history...
@@ -161,23 +178,42 @@ export default function MoodHistoryList({ darkMode }: MoodHistoryListProps) {
             No mood data available
           </div>
         ) : (
-          <>
-            {moodData.map((item, index) => (
-              <div 
-                key={index} 
-                className={`flex justify-between items-center p-3 rounded-lg ${colors.cardBackground}`}
-              >
-                <div className="flex items-center">
-                  <span className={colors.dateText}>{formatDate(item.date)}</span>
+          <div>
+            {/* First 4 mood items displayed normally */}
+            <div className="mb-3">
+              {moodData.slice(0, 3).map((item, index) => renderMoodItem(item, index))}
+            </div>
+            
+            {/* Remaining mood items in a scrollable div with clear visual separation */}
+            {moodData.length > 3 && (
+              <>
+                <div className={`flex items-center mb-2 ${colors.secondaryText}`}>
+                  <div className="flex-grow border-t ${colors.borderColor}"></div>
+                  <span className="px-2 text-xs">Older entries</span>
+                  <div className="flex-grow border-t ${colors.borderColor}"></div>
                 </div>
-                <div className={`px-3 py-1 rounded-full ${getMoodColorClass(item.mood)}`}>
-                  {item.mood}
+                
+                <div 
+                  className={`overflow-y-auto max-h-64 pr-1 rounded-lg ${
+                    darkMode ? 'scrollbar-dark' : 'scrollbar-light'
+                  }`}
+                  style={{
+                    scrollbarWidth: 'thin',
+                    scrollbarColor: `${darkMode ? '#4B5563 #1F2937' : '#D1D5DB #F3F4F6'}`
+                  }}
+                >
+                  {moodData.slice(3).map((item, index) => renderMoodItem(item, index + 3))}
                 </div>
-              </div>
-            ))}
-          </>
+              </>
+            )}
+          </div>
         )}
       </div>
+      
+      {/* Add custom scrollbar styles */}
+      <style jsx global>{`
+
+      `}</style>
     </div>
   );
 }

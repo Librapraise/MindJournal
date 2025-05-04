@@ -10,6 +10,7 @@ export default function JournalEntries() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
+  const [expandedEntry, setExpandedEntry] = useState<string | null>(null);
   
   const isDark = theme === 'dark';
 
@@ -111,6 +112,12 @@ export default function JournalEntries() {
         return plainText.substring(0, maxLength) + '...';
         };
 
+    // Toggle expanded view for an entry
+    const toggleExpand = (id: string) => {
+      setExpandedEntry(prevId => prevId === id ? null : id);
+    };
+
+
   return (
     <div className={`min-h-screen w-full max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:pl-72 ${isDark ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
       <div className="flex items-center justify-between mb-6">
@@ -181,9 +188,26 @@ export default function JournalEntries() {
               </div>
             </div>
             <div className="p-4">
-              <p className={`${isDark ? 'text-gray-200' : 'text-gray-800'} whitespace-pre-wrap`}>
-                {createSnippet(entry.content)}
-              </p>
+            <p className={`text-sm mt-1 ${
+              isDark ? 'text-gray-400' : 'text-gray-600'
+            } ${
+              expandedEntry === entry.id ? '' : 'line-clamp-2'
+            }`}>
+              {createSnippet(entry.content, expandedEntry === entry.id ? 700 : 100)}
+            </p>
+              {entry.content.length > 6 && (
+                <button 
+                  className={`cursor-pointer text-xs mt-1 ${
+                    isDark ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleExpand(entry.id);
+                  }}
+                >
+                  {expandedEntry === entry.id ? 'Show less' : 'Show more'}
+                </button>
+              )}
             </div>
             {entry.themes && entry.themes.length > 0 && (
               <div className="px-4 pb-3">

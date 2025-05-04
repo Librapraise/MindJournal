@@ -1,2 +1,29 @@
 @import "tailwindcss";
 
+.scrollbar-dark::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .scrollbar-dark::-webkit-scrollbar-track {
+    background: #1F2937;
+    border-radius: 8px;
+  }
+  
+  .scrollbar-dark::-webkit-scrollbar-thumb {
+    background-color: #4B5563;
+    border-radius: 8px;
+  }
+  
+  .scrollbar-light::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .scrollbar-light::-webkit-scrollbar-track {
+    background: #F3F4F6;
+    border-radius: 8px;
+  }
+  
+  .scrollbar-light::-webkit-scrollbar-thumb {
+    background-color: #D1D5DB;
+    border-radius: 8px;
+  }
