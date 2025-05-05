@@ -684,7 +684,7 @@ export default function Settings() {
       <div className="text-right">
         <button
           onClick={handleLogout}
-          className="text-red-600 hover:underline flex items-center ml-auto"
+          className="cursor-pointer flex items-center ml-auto p-2 bg-white rounded-md shadow-sm border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
         >
           <LogOut size={16} className="mr-1" />
           Logout

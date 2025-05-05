@@ -30,7 +30,8 @@ export default function AuthPage() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -100,7 +101,8 @@ export default function AuthPage() {
         // Registration flow
         try {
           const signupRes = await axios.post(API_BASE_URL, {
-            full_name: formData.fullName, // Make sure the field names match what backend expects
+            first_name: formData.firstName, // Make sure the field names match what backend expects
+            last_name: formData.lastName, // Make sure the field names match what backend expects
             email: formData.email,
             password: formData.password
           });
@@ -111,7 +113,8 @@ export default function AuthPage() {
           // Clear form and switch to login
           setFormData({
             ...formData,
-            fullName: '',
+            firstName: '',
+            lastName: '',
             confirmPassword: ''
           });
           setIsLogin(true);
@@ -235,18 +238,32 @@ export default function AuthPage() {
               onSubmit={handleSubmit}
             >
               {!isLogin && (
-                <div className="mb-4">
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Full Name</label>
-                  <input
-                    type="text"
-                    name="fullName"
-                    placeholder="Enter your full name"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                    required
-                  />
-                </div>
+                <>
+                  <div className="mb-4">
+                    <label className="block text-sm font-bold text-gray-700 mb-1">First Name</label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      placeholder="Enter your first name"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      required
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Last Name</label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      placeholder="Enter your last name"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      required
+                    />
+                  </div>
+                </>
               )}
               <div className="mb-4">
                 <label className="block text-sm font-bold text-gray-700 mb-1">Email</label>

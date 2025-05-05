@@ -5,18 +5,54 @@ import { useTheme } from '@/app/ThemeContext'; // Import theme hook
 export default function ChatbotUI() {
   const { darkMode } = useTheme(); // Use theme hook
   const [messages, setMessages] = useState<{ id: number; content: string; sender: string; timestamp: string }[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Load messages from localStorage when component mounts
+  // Get current user ID when component mounts
   useEffect(() => {
-    const savedMessages = localStorage.getItem('chatMessages');
-    if (savedMessages) {
-      setMessages(JSON.parse(savedMessages));
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        // Extract user ID from JWT token
+        // This assumes your JWT contains a user ID claim
+        // You might need to adjust this based on your actual token structure
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        
+        const payload = JSON.parse(jsonPayload);
+        const currentUserId = payload.userId || payload.sub || payload.id; // Adjust based on your token
+        setUserId(currentUserId);
+        
+        // Load messages specific to this user
+        loadUserMessages(currentUserId);
+      } catch (error) {
+        console.error('Error parsing token:', error);
+        // Handle invalid token - possibly redirect to login
+      }
     } else {
-      // Set default welcome message if no saved messages exist
+      // No token found, user needs to log in
+      // You might want to redirect to login page or show a message
+      console.log('No authentication token found');
+    }
+  }, []);
+  
+  // Load messages for specific user
+  const loadUserMessages = (userId: string) => {
+    // Use user-specific key for localStorage
+    const userSpecificKey = `chatMessages_${userId}`;
+    const savedMessages = localStorage.getItem(userSpecificKey);
+    
+    if (savedMessages) {
+      const parsedMessages = JSON.parse(savedMessages);
+      setMessages(parsedMessages);
+    } else {
+      // Set default welcome message for new user
       const defaultMessage = {
         id: 1,
         content: "Hello! I'm MINDAI. How are you feeling today?",
@@ -24,16 +60,17 @@ export default function ChatbotUI() {
         timestamp: new Date().toISOString()
       };
       setMessages([defaultMessage]);
-      localStorage.setItem('chatMessages', JSON.stringify([defaultMessage]));
+      localStorage.setItem(userSpecificKey, JSON.stringify([defaultMessage]));
     }
-  }, []);
+  };
   
   // Save messages to localStorage whenever they change
   useEffect(() => {
-    if (messages.length > 0) {
-      localStorage.setItem('chatMessages', JSON.stringify(messages));
+    if (messages.length > 0 && userId) {
+      const userSpecificKey = `chatMessages_${userId}`;
+      localStorage.setItem(userSpecificKey, JSON.stringify(messages));
     }
-  }, [messages]);
+  }, [messages, userId]);
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -48,7 +85,7 @@ export default function ChatbotUI() {
   };
   
   const handleSendMessage = async () => {
-    if (inputValue.trim() === "") return;
+    if (inputValue.trim() === "" || !userId) return;
     
     // Add user message
     const newUserMessage = {
@@ -118,6 +155,8 @@ export default function ChatbotUI() {
   };
   
   const clearChat = () => {
+    if (!userId) return;
+    
     const defaultMessage = {
       id: Date.now(),
       content: "Hello! I'm MINDAI. How are you feeling today?",
@@ -125,8 +164,21 @@ export default function ChatbotUI() {
       timestamp: new Date().toISOString()
     };
     setMessages([defaultMessage]);
-    localStorage.setItem('chatMessages', JSON.stringify([defaultMessage]));
+    
+    const userSpecificKey = `chatMessages_${userId}`;
+    localStorage.setItem(userSpecificKey, JSON.stringify([defaultMessage]));
   };
+  
+  // Show login message if no user ID is found
+  if (!userId) {
+    return (
+      <div className={`flex flex-col h-screen items-center justify-center ${darkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-800'}`}>
+        <Bot className={`h-12 w-12 ${darkMode ? 'text-blue-400' : 'text-blue-500'} mb-4`} />
+        <h2 className="text-xl font-semibold mb-2">Authentication Required</h2>
+        <p className="text-center max-w-md">Please log in to access your chat history with MINDAI.</p>
+      </div>
+    );
+  }
   
   return (
     <div className={`flex flex-col h-screen ${darkMode ? 'bg-gray-800' : 'bg-gray-100'} `}>
