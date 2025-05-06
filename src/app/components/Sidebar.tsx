@@ -163,7 +163,7 @@ const Sidebar = () => {
                 <Brain className={`h-8 w-8 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
               </span>
             </div>
-            {(!isCollapsed || isMobileOpen) && <span className={`font-semibold text-lg ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>MindJournal</span>}
+            {(!isCollapsed || isMobileOpen) && <span className={`font-semibold text-lg ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>MindAI Journal</span>}
           </a>
         </div>
 

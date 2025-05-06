@@ -198,7 +198,7 @@ export default function AuthPage() {
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-600 rounded-full opacity-20 blur-xl"></div>
           
           <div className="relative z-10">
-            <h2 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">MindJournal</h2>
+            <h2 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">MindAI Journal</h2>
             <p className="mb-6 text-gray-300">Your private space for reflection, growth, and mental wellness. Track your journey and gain insights.</p>
             <ul className="space-y-4">
               {[

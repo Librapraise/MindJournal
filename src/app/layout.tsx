@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MindJournal",
+  title: "MindAI Journal",
   description: "Your personal space to reflect, and track your mental health journey",
 };
 
