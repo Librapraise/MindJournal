@@ -204,6 +204,7 @@ export default function AuthPage() {
               {[
                 'Secure and private journaling',
                 'AI-powered mood analytics',
+                'Interactive AI Chat Companion',
                 'Track emotional patterns',
                 'Personalized insights',
                 'Daily reflection prompts'

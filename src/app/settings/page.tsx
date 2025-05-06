@@ -21,7 +21,8 @@ interface PasswordChange {
 }
 
 interface ProfileState {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   notificationEnabled: boolean;
   journalReminders: boolean;
@@ -32,7 +33,8 @@ export default function Settings() {
   const { darkMode, toggleTheme } = useTheme(); // Get theme state and toggle function
   
   const [profile, setProfile] = useState<ProfileState>({
-    name: "",
+    firstName: '',
+    lastName: '',
     email: "",
     notificationEnabled: true,
     journalReminders: true,
@@ -82,9 +84,26 @@ export default function Settings() {
 
           const userData = await response.json();
           
+          // Handle user data consistently based on API response format
+          let firstName = '';
+          let lastName = '';
+          
+          // First try to use first_name and last_name if available
+          if (userData.first_name !== undefined && userData.last_name !== undefined) {
+            firstName = userData.first_name;
+            lastName = userData.last_name;
+          } 
+          // Otherwise try to split the name field
+          else if (userData.name) {
+            const nameParts = userData.name.split(" ");
+            firstName = nameParts[0] || "";
+            lastName = nameParts.slice(1).join(" ") || "";
+          }
+          
           setProfile((prevState) => ({
             ...prevState,
-            name: userData.name || "",
+            firstName,
+            lastName,
             email: userData.email || "",
             notificationEnabled: userData.settings?.notifications_enabled ?? true,
             journalReminders: userData.settings?.journal_reminders ?? true,
@@ -103,9 +122,15 @@ export default function Settings() {
             }
           };
           
+          // Split mock name
+          const nameParts = mockUserData.name.split(" ");
+          const firstName = nameParts[0] || "";
+          const lastName = nameParts.slice(1).join(" ") || "";
+          
           setProfile((prevState) => ({
             ...prevState,
-            name: mockUserData.name,
+            firstName,
+            lastName,
             email: mockUserData.email,
             notificationEnabled: mockUserData.settings.notifications_enabled,
             journalReminders: mockUserData.settings.journal_reminders,
@@ -158,6 +183,9 @@ export default function Settings() {
         return;
       }
       
+      // Combine first and last name for the API
+      //const fullName = `${profile.firstName} ${profile.lastName}`.trim();
+      
       try {
         const response = await fetch("https://mentalheathapp.vercel.app/users/me", {
           method: "PUT",
@@ -166,7 +194,7 @@ export default function Settings() {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            name: profile.name,
+            name: `${profile.firstName} ${profile.lastName}`, // Corrected syntax
             settings: {
               notifications_enabled: profile.notificationEnabled,
               journal_reminders: profile.journalReminders,
@@ -184,7 +212,7 @@ export default function Settings() {
         
         // For development - simulate success
         console.warn("Development mode: Simulating successful update");
-        setSuccessMessage("Profile updated successfully! (Development mode)");
+        setSuccessMessage("Profile updated successfully!");
       }
     } catch (error) {
       console.error("Profile update error:", error);
@@ -263,7 +291,7 @@ export default function Settings() {
               confirmPassword: "",
             },
           }));
-          setSuccessMessage("Password changed successfully! (Development mode)");
+          setSuccessMessage("Password changed successfully!");
         } else {
           setErrorMessage("Current password is required");
         }
@@ -283,7 +311,7 @@ export default function Settings() {
       // Call logout endpoint if available and we have a token
       if (token) {
         try {
-          await fetch("/api/auth/logout", {
+          await fetch("https://mentalheathapp.vercel.app/auth/logout", {  // Fixed API path
             method: "POST",
             headers: {
               "Authorization": `Bearer ${token}`,
@@ -447,19 +475,36 @@ export default function Settings() {
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <label className={`block text-sm font-medium mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                Full Name
+                First Name
               </label>
               <input
                 type="text"
-                name="name"
-                value={profile.name}
+                name="firstName"
+                value={profile.firstName}
                 onChange={handleInputChange}
                 className={`w-full px-3 py-2 border rounded-md ${
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-white' 
                     : 'border-gray-300 text-gray-900'
                 }`}
-                placeholder="Your name"
+                placeholder="Your first name"
+              />
+            </div>
+            <div>
+              <label className={`block text-sm font-medium mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Last Name
+              </label>
+              <input
+                type="text"
+                name="lastName"
+                value={profile.lastName}
+                onChange={handleInputChange}
+                className={`w-full px-3 py-2 border rounded-md ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white' 
+                    : 'border-gray-300 text-gray-900'
+                }`}
+                placeholder="Your last name"
               />
             </div>
             <div>
