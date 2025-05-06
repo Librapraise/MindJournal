@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Moon, Sun } from 'lucide-react';
 
 // Base URL constant 
 const API_BASE_URL = 'https://mentalheathapp.vercel.app/users';
@@ -130,11 +130,11 @@ export default function AuthPage() {
           });
           setIsLogin(true);
           
-        } catch (signupError: any) {
+        } catch (signupError) {
           handleApiError(signupError);
         }
       }
-    } catch (error: any) {
+    } catch (error) {
       handleApiError(error);
     } finally {
       setLoading(false);
@@ -181,39 +181,61 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="bg-white rounded-lg shadow-lg flex flex-col md:flex-row w-full max-w-5xl overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 p-4">
+      {/* Background decorative element */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-500 rounded-full opacity-10 blur-3xl"></div>
+        <div className="absolute top-1/2 -right-40 w-96 h-96 bg-blue-500 rounded-full opacity-10 blur-3xl"></div>
+        <div className="absolute -bottom-40 left-1/3 w-80 h-80 bg-cyan-500 rounded-full opacity-10 blur-3xl"></div>
+      </div>
+
+      <div className="relative z-10 bg-gray-900/40 backdrop-blur-xl backdrop-filter rounded-2xl shadow-2xl border border-gray-700/50 flex flex-col md:flex-row w-full max-w-5xl overflow-hidden">
         
         {/* Left Panel */}
-        <div className="md:w-1/2 bg-gradient-to-b from-blue-500 to-blue-400 text-white p-10 flex flex-col justify-center">
-          <h2 className="text-3xl font-bold mb-4">MindJournal</h2>
-          <p className="mb-6">Your private space for reflection, growth, and mental wellness. Track your journey and gain insights.</p>
-          <ul className="space-y-3">
-            {[
-              'Secure and private journaling',
-              'AI-powered mood analytics',
-              'Track emotional patterns',
-              'Personalized insights',
-              'Daily reflection prompts'
-            ].map((feature, idx) => (
-              <li key={idx} className="flex items-center">
-                <span className="text-lg mr-2">✔️</span> {feature}
-              </li>
-            ))}
-          </ul>
+        <div className="md:w-1/2 bg-gradient-to-br from-blue-600/20 to-purple-600/20 border-r border-gray-700/30 text-white p-10 flex flex-col justify-center relative overflow-hidden">
+          {/* Decorative circles */}
+          <div className="absolute -top-24 -left-24 w-48 h-48 bg-blue-500 rounded-full opacity-20 blur-xl"></div>
+          <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-600 rounded-full opacity-20 blur-xl"></div>
+          
+          <div className="relative z-10">
+            <h2 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">MindJournal</h2>
+            <p className="mb-6 text-gray-300">Your private space for reflection, growth, and mental wellness. Track your journey and gain insights.</p>
+            <ul className="space-y-4">
+              {[
+                'Secure and private journaling',
+                'AI-powered mood analytics',
+                'Track emotional patterns',
+                'Personalized insights',
+                'Daily reflection prompts'
+              ].map((feature, idx) => (
+                <li key={idx} className="flex items-center">
+                  <span className="mr-3 w-6 h-6 flex items-center justify-center rounded-full bg-blue-500/20 border border-blue-400/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-blue-300" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </span>
+                  <span className="text-gray-300">{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* Right Panel */}
-        <div className="md:w-1/2 p-8">
+        <div className="md:w-1/2 p-8 relative bg-gray-900/40">
           {/* Tabs */}
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-8">
             <button
               onClick={() => {
                 setIsLogin(true);
                 setErrorMessage('');
                 setSuccessMessage('');
               }}
-              className={`cursor-pointer px-4 py-2 focus:outline-none text-lg font-semibold transition-all duration-300 ${isLogin ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+              className={`cursor-pointer px-6 py-2 focus:outline-none text-lg font-medium transition-all duration-300 rounded-l-lg ${
+                isLogin 
+                  ? 'bg-gradient-to-r from-blue-600/30 to-purple-600/30 text-white border border-gray-700/50' 
+                  : 'text-gray-400 hover:text-gray-300'
+              }`}
               type="button"
             >
               Login
@@ -224,7 +246,11 @@ export default function AuthPage() {
                 setErrorMessage('');
                 setSuccessMessage('');
               }}
-              className={`cursor-pointer px-4 py-2 focus:outline-none text-lg font-semibold transition-all duration-300 ${!isLogin ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+              className={`cursor-pointer px-6 py-2 focus:outline-none text-lg font-medium transition-all duration-300 rounded-r-lg ${
+                !isLogin 
+                  ? 'bg-gradient-to-r from-blue-600/30 to-purple-600/30 text-white border border-gray-700/50' 
+                  : 'text-gray-400 hover:text-gray-300'
+              }`}
               type="button"
             >
               Sign Up
@@ -233,7 +259,7 @@ export default function AuthPage() {
 
           {/* Success message */}
           {successMessage && (
-            <div className="mb-4 p-2 bg-green-100 border border-green-400 text-green-700 rounded text-center">
+            <div className="mb-6 p-3 bg-green-900/30 backdrop-blur-sm border border-green-500/30 text-green-300 rounded-lg text-center">
               {successMessage}
             </div>
           )}
@@ -242,54 +268,55 @@ export default function AuthPage() {
           <AnimatePresence mode="wait">
             <motion.form
               key={isLogin ? 'login' : 'signup'}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
               onSubmit={handleSubmit}
+              className="bg-gray-800/30 backdrop-blur-sm p-6 rounded-xl border border-gray-700/50 shadow-lg"
             >
               {!isLogin && (
-                <>
-                  <div className="mb-4">
-                    <label className="block text-sm font-bold text-gray-700 mb-1">First Name</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">First Name</label>
                     <input
                       type="text"
                       name="firstName"
                       placeholder="Enter your first name"
                       value={formData.firstName}
                       onChange={handleChange}
-                      className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-800"
+                      className="w-full p-3 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-gray-200 placeholder-gray-500"
                       required
                     />
                   </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Last Name</label>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Last Name</label>
                     <input
                       type="text"
                       name="lastName"
                       placeholder="Enter your last name"
                       value={formData.lastName}
                       onChange={handleChange}
-                      className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-800"
+                      className="w-full p-3 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-gray-200 placeholder-gray-500"
                       required
                     />
                   </div>
-                </>
+                </div>
               )}
               <div className="mb-4">
-                <label className="block text-sm font-bold text-gray-700 mb-1">Email</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Email</label>
                 <input
                   type="email"
                   name="email"
                   placeholder="Enter your email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-800"
+                  className="w-full p-3 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-gray-200 placeholder-gray-500"
                   required
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-bold text-gray-700 mb-1">Password</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Password</label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -297,7 +324,7 @@ export default function AuthPage() {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-800"
+                    className="w-full p-3 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-gray-200 placeholder-gray-500"
                     required
                   />
                   <button
@@ -306,16 +333,16 @@ export default function AuthPage() {
                     className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                   >
                     {showPassword ? (
-                      <EyeOff size={20} className="text-gray-500" />
+                      <EyeOff size={20} className="text-gray-400" />
                     ) : (
-                      <Eye size={20} className="text-gray-500" />
+                      <Eye size={20} className="text-gray-400" />
                     )}
                   </button>
                 </div>
               </div>
               {!isLogin && (
                 <div className="mb-4">
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Confirm Password</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Confirm Password</label>
                   <div className="relative">
                     <input
                       type={showConfirmPassword ? "text" : "password"}
@@ -323,7 +350,7 @@ export default function AuthPage() {
                       placeholder="Confirm your password"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-800"
+                      className="w-full p-3 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-gray-200 placeholder-gray-500"
                       required
                     />
                     <button
@@ -332,9 +359,9 @@ export default function AuthPage() {
                       className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                     >
                       {showConfirmPassword ? (
-                        <EyeOff size={20} className="text-gray-500" />
+                        <EyeOff size={20} className="text-gray-400" />
                       ) : (
-                        <Eye size={20} className="text-gray-500" />
+                        <Eye size={20} className="text-gray-400" />
                       )}
                     </button>
                   </div>
@@ -343,7 +370,7 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="cursor-pointer font-bold w-full bg-blue-500 text-white py-2 mt-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
+                className="cursor-pointer font-medium w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 mt-4 rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all disabled:opacity-50 disabled:hover:from-blue-600 disabled:hover:to-purple-600"
               >
                 {loading ? 'Processing...' : isLogin ? 'Login' : 'Create Account'}
               </button>
@@ -352,37 +379,10 @@ export default function AuthPage() {
 
           {/* Display Error Message */}
           {errorMessage && (
-            <div className="mt-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded text-center">
+            <div className="mt-6 p-3 bg-red-900/30 backdrop-blur-sm border border-red-500/30 text-red-300 rounded-lg text-center">
               {errorMessage}
             </div>
           )}
-
-          {/* Social Logins 
-          <div className="text-center mt-6">
-            <p className="text-sm text-gray-400">Or continue with</p>
-            <div className="flex justify-center gap-4 mt-3">
-              {['G', 'f', 'in'].map((social, idx) => (
-                <button 
-                  key={idx} 
-                  type="button"
-                  className="cursor-pointer w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-all"
-                >
-                  {social}
-                </button>
-              ))}
-            </div>
-          </div>
-          */}
-
-          {/* Forgot Password
-          {isLogin && (
-            <div className="text-center mt-4">
-              <a href="#" className="text-blue-500 text-sm hover:underline">
-                Forgot Password?
-              </a>
-            </div>
-          )}
-          */}
         </div>
       </div>
     </div>
