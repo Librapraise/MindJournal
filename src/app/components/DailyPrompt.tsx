@@ -44,7 +44,7 @@ export default function DailyPrompt({ darkMode }: DailyPromptProps) {
 
   return (
     <div className={`${colors.container} p-4 rounded-lg`}>
-      <div className={`${colors.promptCard} p-6 rounded-xl ${colors.shadow}`}>
+      <div className={`${colors.promptCard} p-6 rounded-lg ${colors.shadow}`}>
         <h2 className={`text-lg font-semibold mb-3 ${colors.title}`}>Today's Prompt</h2>
         {isLoading ? (
           <p className={colors.loadingText}>Loading prompt...</p>

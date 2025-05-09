@@ -148,14 +148,14 @@ export default function MoodHistoryList({ darkMode }: MoodHistoryListProps) {
   );
 
   return (
-    <div className={`${colors.background} p-6 rounded-xl ${colors.shadow} space-y-4`}>
+    <div className={`${colors.background} p-6 rounded-lg ${colors.shadow} space-y-4`}>
       {/* Title and Filter */}
       <div className="flex justify-between items-center">
         <h2 className={`text-lg font-semibold ${colors.text}`}>Recent Moods</h2>
         <select 
           value={days}
           onChange={(e) => setDays(Number(e.target.value))}
-          className={`text-sm border rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 
+          className={`text-sm border rounded-lg cursor-pointer p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 
             ${colors.borderColor} ${colors.selectBackground} ${colors.text}`}
         >
           <option value={7}>Last 7 days</option>

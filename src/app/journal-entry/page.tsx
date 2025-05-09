@@ -120,7 +120,7 @@ export default function JournalEntries() {
 
   return (
     <div className={`min-h-screen w-full max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:pl-72 ${isDark ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 mt-6 lg:mt-0">
         <div className="flex items-center">
           <h1 className="text-2xl font-bold">Journal Entries</h1>
         </div>

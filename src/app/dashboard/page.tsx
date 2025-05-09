@@ -10,7 +10,7 @@ import { Button } from "../components/ui/button";
 import ThemeCloud from "../components/ThemeCloud";
 import MoodHistoryList from "../components/MoodHistory";
 import CalendarModal from "../components/Calendar";
-import { Moon, Sun } from "lucide-react"; // Import icons for the toggle button
+import { Moon, Sun, Calendar1, Plus } from "lucide-react"; // Import icons for the toggle button
 
 export default function DashboardPage() {
   const { darkMode, toggleTheme } = useTheme(); // Get both darkMode state and toggle function
@@ -30,7 +30,7 @@ export default function DashboardPage() {
         <h1 className={`text-xl md:text-2xl font-bold ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
           Dashboard
         </h1>
-        <div className="flex space-x-1 items-center">
+        <div className="flex space-x-2 items-center">
           {/* Dark Mode Toggle Button */}
           <button
             onClick={toggleTheme}
@@ -48,7 +48,7 @@ export default function DashboardPage() {
             onClick={() => setShowCalendar(true)}
             className={darkMode ? 'primary-dark' : 'primary-light'}
           >
-            View Calendar
+            <Calendar1 />
           </Button>
           
           <a href="/journal">
@@ -56,7 +56,7 @@ export default function DashboardPage() {
               variant="primary"
               className={darkMode ? 'primary-dark' : 'primary-light'}
             >
-              New Entry
+              <Plus />
             </Button>
           </a>
         </div>
