@@ -32,8 +32,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Add event listener for window resize
-  window.addEventListener("resize", handleResize);
   
   // Clean up the event listener on component unmount
   useEffect(() => {
