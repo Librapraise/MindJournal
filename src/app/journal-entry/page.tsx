@@ -149,9 +149,11 @@ export default function JournalEntries() {
       {!loading && entries.length === 0 && !error && (
         <div className="text-center py-10">
           <p className={`mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>You haven't created any journal entries yet.</p>
-          <button className={`px-4 py-2 ${isDark ? 'bg-blue-700 hover:bg-blue-600' : 'bg-blue-600 hover:bg-blue-700'} text-white rounded-md`}>
-            Create Your First Entry
-          </button>
+          <a href="/journal">
+            <button className={`px-4 py-2 ${isDark ? 'bg-blue-700 hover:bg-blue-600' : 'bg-blue-600 hover:bg-blue-700'} text-white rounded-md`}>
+              Create Your First Entry
+            </button>
+          </a>
         </div>
       )}
 

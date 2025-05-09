@@ -482,7 +482,7 @@ export default function InsightsPage() {
         {insights.common_words.map((word, index) => (
           <span 
             key={index} 
-            className={`px-3 py-1 rounded-full ${
+            className={`flex items-center px-3 py-1 rounded-full ${
               darkMode 
                 ? 'bg-blue-900 text-blue-200' 
                 : 'bg-blue-100 text-blue-800'
@@ -737,10 +737,10 @@ export default function InsightsPage() {
                         <PieChart>
                           <Pie
                             data={processedThemeData}
-                            cx="50%"
+                            cx="40%"
                             cy="50%"
                             labelLine={false}
-                            outerRadius={80}
+                            outerRadius={60}
                             fill="#8884d8"
                             dataKey="value"
                             nameKey="name"

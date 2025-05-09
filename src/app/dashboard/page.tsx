@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "@/app/ThemeContext"; // Import the theme hook
 import MoodChart from "../components/MoodChart";
 import DailyPrompt from "../components/DailyPrompt";
@@ -15,6 +15,38 @@ import { Moon, Sun, Calendar1, Plus } from "lucide-react"; // Import icons for t
 export default function DashboardPage() {
   const { darkMode, toggleTheme } = useTheme(); // Get both darkMode state and toggle function
   const [showCalendar, setShowCalendar] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const checkIsMobile = () => {
+    // Only set isCollapsed for desktop/tablet views, not for mobile
+    setIsCollapsed(window.innerWidth < 1024 && window.innerWidth >= 640);
+  };
+
+  // Check if the screen is mobile
+  const handleResize = () => {
+    if (window.innerWidth < 640) {
+      setIsMobile(true);
+    } else {
+      setIsMobile(false);
+    }
+  };
+
+  // Add event listener for window resize
+  window.addEventListener("resize", handleResize);
+  
+  // Clean up the event listener on component unmount
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+  // Check if the screen is mobile on initial render
+  useEffect(() => {
+    handleResize();
+    checkIsMobile();
+  }, []);
   
   const handleViewCalendar = () => {
     setShowCalendar(prev => !prev);
@@ -48,7 +80,7 @@ export default function DashboardPage() {
             onClick={() => setShowCalendar(true)}
             className={darkMode ? 'primary-dark' : 'primary-light'}
           >
-            <Calendar1 />
+            {isMobile ? <Calendar1 size={18} /> : "View Calendar"}
           </Button>
           
           <a href="/journal">
@@ -56,7 +88,7 @@ export default function DashboardPage() {
               variant="primary"
               className={darkMode ? 'primary-dark' : 'primary-light'}
             >
-              <Plus />
+              {isMobile ? <Plus size={18} /> : "Create Journal Entry"}
             </Button>
           </a>
         </div>

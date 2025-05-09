@@ -63,8 +63,8 @@ export default function ThemeCloud({ days = 30, darkMode = false }: ThemeCloudPr
   // Calculate font size based on count (for tag cloud effect)
   const getFontSize = (count: number): string => {
     const maxCount = Math.max(...themes.map(item => item.count));
-    const minSize = 0.8; // 0.8rem
-    const maxSize = 1.5; // 1.5rem
+    const minSize = 0.7; // 0.7rem
+    const maxSize = 1.1; // 1.1rem
     
     if (maxCount === 0) return `${minSize}rem`;
     
