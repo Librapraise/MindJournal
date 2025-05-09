@@ -33,7 +33,7 @@ A secure, AI-powered journaling application that helps users track their mental 
 
 - Python 3.9+
 - PostgreSQL
-- Google Gemini API key or OpenAI API key
+- OpenAI API key
 
 ### Installation
 
