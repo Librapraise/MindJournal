@@ -18,7 +18,7 @@ A secure, AI-powered journaling application that helps users track their mental 
 ### Technical Features
 
 - **Modern FastAPI Backend**: High-performance async API with automatic OpenAPI documentation
-- **AI Integration**: Flexible LLM support (Google Gemini, OpenAI)
+- **AI Integration**: Flexible LLM support (OpenAI)
 - **Database**: PostgreSQL with SQLAlchemy ORM
 - **Security**:
   - CORS protection
@@ -63,7 +63,6 @@ pip install -r requirements.txt
 ```env
 DATABASE_URL=postgresql://user:password@localhost:5432/db_name
 SECRET_KEY=your-secret-key-here
-GOOGLE_API_KEY=your-google-api-key
 OPENAI_API_KEY=your-openai-api-key
 DEFAULT_LLM_PROVIDER=gemini  # or openai
 ALLOWED_ORIGINS=http://localhost:3000
@@ -128,7 +127,6 @@ Once the application is running, access the interactive API documentation:
 - Rate limiting on authentication endpoints
 - Secure headers middleware enabled
 
-
 ### Development Guidelines
 
 - Use Black for code formatting
@@ -166,7 +164,6 @@ The project includes a `vercel.json` configuration for easy deployment to Vercel
 3. Commit your changes
 4. Push to the branch
 5. Create a Pull Request
-
 
 ## 🙏 Acknowledgments
 
